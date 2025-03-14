@@ -11,8 +11,8 @@
     <div class="admin-container">
         <div id="login-form" class="login-form">
             <h2>Вхід в систему</h2>
-            <div id="error-message" class="error-message hidden"></div>
-            <form id="adminLogin">
+            <div id="login-message" class="message"></div>
+            <form>
                 <div class="form-group">
                     <label for="username">Логін:</label>
                     <input type="text" id="username" required>
@@ -25,29 +25,29 @@
             </form>
         </div>
 
-        <div id="admin-panel" class="admin-panel hidden">
+        <div id="admin-panel" class="admin-panel">
             <div class="admin-header">
                 <h2>Управління групами</h2>
-                <button onclick="logout()" class="logout-btn">Вийти</button>
+                <button id="logout-btn" class="logout-btn">Вийти</button>
             </div>
             <p class="info-text">
                 Додайте групи, які будуть доступні для вибору студентами при реєстрації.
-                Дані всіх груп будуть зберігатися в одному файлі Google Sheets, але на різних листах.
+                <br><strong>Демо-версія для GitHub Pages:</strong> Групи зберігаються локально в браузері.
             </p>
+            <div id="admin-message" class="message"></div>
             <form id="group-form">
                 <div class="form-group">
-                    <label for="groupNumber">Номер групи:</label>
-                    <input type="text" id="groupNumber" required>
-                    <small>Назва групи буде використана як назва листа в Google Sheets</small>
+                    <label for="group-name">Назва групи:</label>
+                    <input type="text" id="group-name" required>
                 </div>
                 <button type="submit">Додати групу</button>
             </form>
-            <div class="groups-list">
+            <div class="groups-container">
                 <h3>Список груп</h3>
-                <ul id="groupsList"></ul>
+                <div id="group-list" class="group-list"></div>
             </div>
         </div>
     </div>
-    <script src="/js/admin.js"></script>
+    <script src="./js/admin-github.js"></script>
 </body>
 </html>

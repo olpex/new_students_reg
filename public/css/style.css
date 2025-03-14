@@ -1419,3 +1419,107 @@ li {
 .form-group {
     margin-bottom: 1rem;
 }
+
+/* Admin Panel Styles */
+.admin-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background-color: var(--card-background);
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.login-form {
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.admin-panel {
+    display: none;
+}
+
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.info-text {
+    margin-bottom: 1.5rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+}
+
+.message {
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+    border-radius: 4px;
+    display: none;
+}
+
+.message.success {
+    display: block;
+    background-color: var(--success-background);
+    color: var(--success-color);
+    border: 1px solid var(--success-border);
+}
+
+.message.error {
+    display: block;
+    background-color: var(--error-background);
+    color: var(--error-color);
+    border: 1px solid var(--error-border);
+}
+
+.group-list {
+    margin-top: 1.5rem;
+}
+
+.group-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+    background-color: var(--section-background);
+    border-radius: 4px;
+    border-left: 3px solid var(--primary-color);
+}
+
+.delete-btn {
+    background-color: var(--error-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 0.5rem 0.75rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.delete-btn:hover {
+    background-color: var(--error-hover);
+}
+
+.logout-btn {
+    background-color: var(--secondary-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.logout-btn:hover {
+    background-color: var(--secondary-hover);
+}
+
+.groups-container {
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
