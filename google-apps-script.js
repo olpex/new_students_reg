@@ -1,6 +1,6 @@
 /**
  * Google Apps script for processing student registration data
- * Script identifier: AKfycbwI19aOfnb83Gn2eFTVL_QGSuCszIZgd7-4GKCBfpdUYn9n7JZk5v4OriyzHjZu3sruhg
+ * Script identifier: AKfycbyg5dOON-ngo3hIz9s50VskOEhZY8pTPMd-7X7X-AfGMN38DG1GhoDlyj7dTs9z3x1nPA
  */
 
 /**
@@ -8,8 +8,18 @@
  */
 function doPost(e) {
   try {
-    // Parsing the incoming JSON data
-    const data = JSON.parse(e.postData.contents);
+    // Check if data is coming from form or direct JSON
+    let data;
+    if (e.parameter && e.parameter.data) {
+      // Data is coming from form submission
+      data = JSON.parse(e.parameter.data);
+    } else if (e.postData && e.postData.contents) {
+      // Data is coming from direct JSON
+      data = JSON.parse(e.postData.contents);
+    } else {
+      throw new Error('No data received');
+    }
+    
     Logger.log("Received data: " + JSON.stringify(data));
     
     // Open the spreadsheet
@@ -47,17 +57,76 @@ function doPost(e) {
     sheet.appendRow(rowData);
     Logger.log('Data added to the sheet');
 
-    return ContentService.createTextOutput(JSON.stringify({
-      success: true,
-      message: 'Data successfully saved'
-    })).setMimeType(ContentService.MimeType.JSON);
+    // Return HTML response for form submissions
+    const htmlResponse = HtmlService.createHtmlOutput(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Registration Successful</title>
+          <meta charset="UTF-8">
+          <style>
+            body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
+            .success { color: green; font-size: 24px; margin-bottom: 20px; }
+            .info { color: #333; margin-bottom: 10px; }
+            .button { 
+              background-color: #4285F4; 
+              color: white; 
+              padding: 10px 20px; 
+              border: none; 
+              border-radius: 4px; 
+              cursor: pointer; 
+              font-size: 16px; 
+            }
+          </style>
+        </head>
+        <body>
+          <div class="success">✓ Реєстрація успішна!</div>
+          <div class="info">Ваші дані були успішно збережені в групі: <strong>${data.sheetName}</strong></div>
+          <div class="info">Ім'я: ${data.firstName} ${data.lastName}</div>
+          <div class="info">Email: ${data.email}</div>
+          <div class="info">Телефон: ${data.phone}</div>
+          <br>
+          <button class="button" onclick="window.close()">Закрити вікно</button>
+        </body>
+      </html>
+    `);
+    
+    return htmlResponse;
 
   } catch (error) {
     Logger.log("Error: " + error.toString());
-    return ContentService.createTextOutput(JSON.stringify({
-      success: false,
-      message: error.toString()
-    })).setMimeType(ContentService.MimeType.JSON);
+    
+    // Return HTML error response
+    const htmlErrorResponse = HtmlService.createHtmlOutput(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Registration Error</title>
+          <meta charset="UTF-8">
+          <style>
+            body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
+            .error { color: red; font-size: 24px; margin-bottom: 20px; }
+            .message { color: #333; margin-bottom: 20px; }
+            .button { 
+              background-color: #4285F4; 
+              color: white; 
+              padding: 10px 20px; 
+              border: none; 
+              border-radius: 4px; 
+              cursor: pointer; 
+              font-size: 16px; 
+            }
+          </style>
+        </head>
+        <body>
+          <div class="error">❌ Помилка реєстрації</div>
+          <div class="message">${error.toString()}</div>
+          <button class="button" onclick="window.close()">Закрити вікно</button>
+        </body>
+      </html>
+    `);
+    
+    return htmlErrorResponse;
   }
 }
 
@@ -65,10 +134,31 @@ function doPost(e) {
  * Handles GET requests (for testing)
  */
 function doGet(e) {
-  return ContentService.createTextOutput(JSON.stringify({
-    success: true,
-    message: 'Google Apps Script is running correctly'
-  })).setMimeType(ContentService.MimeType.JSON);
+  // Check if this is a data submission via GET (not recommended but supported)
+  if (e.parameter && e.parameter.data) {
+    return doPost(e);
+  }
+  
+  // Return a status page
+  return HtmlService.createHtmlOutput(`
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>Google Apps Script Status</title>
+        <meta charset="UTF-8">
+        <style>
+          body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
+          .success { color: green; font-size: 24px; margin-bottom: 20px; }
+          .info { color: #333; margin-bottom: 10px; }
+        </style>
+      </head>
+      <body>
+        <div class="success">✓ Google Apps Script is running correctly</div>
+        <div class="info">This script is configured to receive student registration data.</div>
+        <div class="info">Please submit data using the registration form.</div>
+      </body>
+    </html>
+  `);
 }
 
 /**
@@ -133,8 +223,8 @@ function testDoPost() {
   
   // Create a mock event object
   const mockEvent = {
-    postData: {
-      contents: JSON.stringify(testData)
+    parameter: {
+      data: JSON.stringify(testData)
     }
   };
   

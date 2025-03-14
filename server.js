@@ -218,4 +218,5 @@ app.post('/api/students', async (req, res) => {
 const PORT = 3001;  // Always use port 3001
 app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`);
+    console.log('Initial groups:', groups);
 });

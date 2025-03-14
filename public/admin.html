@@ -6,13 +6,24 @@
     <title>Адміністративна панель</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./css/style.css">
+    <style>
+        .hidden {
+            display: none !important;
+        }
+        #login-form {
+            display: block;
+        }
+        #admin-panel {
+            display: none;
+        }
+    </style>
 </head>
 <body>
     <div class="admin-container">
         <div id="login-form" class="login-form">
             <h2>Вхід в систему</h2>
-            <div id="login-message" class="message"></div>
-            <form>
+            <div id="error-message" class="message"></div>
+            <form id="adminLogin">
                 <div class="form-group">
                     <label for="username">Логін:</label>
                     <input type="text" id="username" required>
@@ -31,8 +42,7 @@
                 <button id="logout-btn" class="logout-btn">Вийти</button>
             </div>
             <p class="info-text">
-                Додайте групи, які будуть доступні для вибору студентами при реєстрації.
-                <br><strong>Демо-версія для GitHub Pages:</strong> Групи зберігаються локально в браузері.
+                <strong>Додайте групи, які будуть доступні для вибору студентами при реєстрації:</strong>
             </p>
             <div id="admin-message" class="message"></div>
             <form id="group-form">
@@ -48,6 +58,6 @@
             </div>
         </div>
     </div>
-    <script src="../public/js/admin-github.js"></script>
+    <script src="./js/admin.js"></script>
 </body>
 </html>
