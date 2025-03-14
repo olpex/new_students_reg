@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Адміністративна панель</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+    <div class="admin-container">
+        <div id="login-form" class="login-form">
+            <h2>Вхід в систему</h2>
+            <div id="error-message" class="error-message hidden"></div>
+            <form id="adminLogin">
+                <div class="form-group">
+                    <label for="username">Логін:</label>
+                    <input type="text" id="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Пароль:</label>
+                    <input type="password" id="password" required>
+                </div>
+                <button type="submit">Увійти</button>
+            </form>
+        </div>
+
+        <div id="admin-panel" class="admin-panel hidden">
+            <div class="admin-header">
+                <h2>Управління групами</h2>
+                <button onclick="logout()" class="logout-btn">Вийти</button>
+            </div>
+            <p class="info-text">
+                Додайте групи, які будуть доступні для вибору студентами при реєстрації.
+                Дані всіх груп будуть зберігатися в одному файлі Google Sheets, але на різних листах.
+            </p>
+            <form id="group-form">
+                <div class="form-group">
+                    <label for="groupNumber">Номер групи:</label>
+                    <input type="text" id="groupNumber" required>
+                    <small>Назва групи буде використана як назва листа в Google Sheets</small>
+                </div>
+                <button type="submit">Додати групу</button>
+            </form>
+            <div class="groups-list">
+                <h3>Список груп</h3>
+                <ul id="groupsList"></ul>
+            </div>
+        </div>
+    </div>
+    <script src="/js/admin.js"></script>
+</body>
+</html>
