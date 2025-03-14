@@ -20,58 +20,64 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Login form submission
-    loginForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        
-        const username = document.getElementById('username').value;
-        const password = document.getElementById('password').value;
-        
-        // Simple demo authentication
-        if (username === DEMO_USERNAME && password === DEMO_PASSWORD) {
-            localStorage.setItem('demoAdminLoggedIn', 'true');
-            showAdminPanel();
-            loadGroups();
-        } else {
-            showLoginMessage('Невірний логін або пароль', 'error');
-        }
-    });
+    if (loginForm) {
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            // Simple demo authentication
+            if (username === DEMO_USERNAME && password === DEMO_PASSWORD) {
+                localStorage.setItem('demoAdminLoggedIn', 'true');
+                showAdminPanel();
+                loadGroups();
+            } else {
+                showLoginMessage('Невірний логін або пароль', 'error');
+            }
+        });
+    }
 
     // Logout button
-    logoutBtn.addEventListener('click', () => {
-        localStorage.removeItem('demoAdminLoggedIn');
-        showLoginForm();
-    });
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', () => {
+            localStorage.removeItem('demoAdminLoggedIn');
+            showLoginForm();
+        });
+    }
 
     // Group form submission
-    groupForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        
-        const groupName = document.getElementById('group-name').value;
-        
-        if (!groupName) {
-            showAdminMessage('Введіть назву групи', 'error');
-            return;
-        }
-        
-        // Get existing groups from localStorage
-        let groups = JSON.parse(localStorage.getItem('demoGroups') || '[]');
-        
-        // Check if group already exists
-        if (groups.some(group => group.name === groupName)) {
-            showAdminMessage('Група з такою назвою вже існує', 'error');
-            return;
-        }
-        
-        // Add new group
-        groups.push({ name: groupName });
-        localStorage.setItem('demoGroups', JSON.stringify(groups));
-        
-        // Reset form and reload groups
-        document.getElementById('group-name').value = '';
-        loadGroups();
-        
-        showAdminMessage('Група успішно додана', 'success');
-    });
+    if (groupForm) {
+        groupForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const groupName = document.getElementById('group-name').value;
+            
+            if (!groupName) {
+                showAdminMessage('Введіть назву групи', 'error');
+                return;
+            }
+            
+            // Get existing groups from localStorage
+            let groups = JSON.parse(localStorage.getItem('demoGroups') || '[]');
+            
+            // Check if group already exists
+            if (groups.some(group => group.name === groupName)) {
+                showAdminMessage('Група з такою назвою вже існує', 'error');
+                return;
+            }
+            
+            // Add new group
+            groups.push({ name: groupName });
+            localStorage.setItem('demoGroups', JSON.stringify(groups));
+            
+            // Reset form and reload groups
+            document.getElementById('group-name').value = '';
+            loadGroups();
+            
+            showAdminMessage('Група успішно додана', 'success');
+        });
+    }
 
     // Load groups from localStorage
     function loadGroups() {

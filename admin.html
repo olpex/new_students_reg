@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Адміністративна панель</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./public/css/style.css">
+    <style>
+        /* Additional Admin Panel Styles */
+        .admin-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .login-form {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .admin-panel {
+            display: none;
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .info-text {
+            margin-bottom: 1.5rem;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .message {
+            padding: 0.75rem 1rem;
+            margin-bottom: 1rem;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .message.success {
+            display: block;
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.error {
+            display: block;
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .group-list {
+            margin-top: 1.5rem;
+        }
+
+        .group-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.5rem;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            border-left: 3px solid #3498db;
+        }
+
+        .delete-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 0.5rem 0.75rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .delete-btn:hover {
+            background-color: #c82333;
+        }
+
+        .logout-btn {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .logout-btn:hover {
+            background-color: #5a6268;
+        }
+
+        .groups-container {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid #eee;
+        }
+
+        button[type="submit"] {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #2980b9;
+        }
+
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-top: 0.25rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.25rem;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <div id="login-form" class="login-form">
+            <h2>Вхід в систему</h2>
+            <div id="login-message" class="message"></div>
+            <form>
+                <div class="form-group">
+                    <label for="username">Логін:</label>
+                    <input type="text" id="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Пароль:</label>
+                    <input type="password" id="password" required>
+                </div>
+                <button type="submit">Увійти</button>
+            </form>
+        </div>
+
+        <div id="admin-panel" class="admin-panel">
+            <div class="admin-header">
+                <h2>Управління групами</h2>
+                <button id="logout-btn" class="logout-btn">Вийти</button>
+            </div>
+            <p class="info-text">
+                Додайте групи, які будуть доступні для вибору студентами при реєстрації.
+                <br><strong>Демо-версія для GitHub Pages:</strong> Групи зберігаються локально в браузері.
+            </p>
+            <div id="admin-message" class="message"></div>
+            <form id="group-form">
+                <div class="form-group">
+                    <label for="group-name">Назва групи:</label>
+                    <input type="text" id="group-name" required>
+                </div>
+                <button type="submit">Додати групу</button>
+            </form>
+            <div class="groups-container">
+                <h3>Список груп</h3>
+                <div id="group-list" class="group-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginForm = document.getElementById('login-form');
+            const adminPanel = document.getElementById('admin-panel');
+            const loginMessage = document.getElementById('login-message');
+            const groupForm = document.getElementById('group-form');
+            const groupList = document.getElementById('group-list');
+            const logoutBtn = document.getElementById('logout-btn');
+
+            // Demo credentials for GitHub Pages
+            const DEMO_USERNAME = 'admin';
+            const DEMO_PASSWORD = 'admin123';
+
+            // Check if already logged in
+            const isLoggedIn = localStorage.getItem('demoAdminLoggedIn') === 'true';
+            
+            if (isLoggedIn) {
+                showAdminPanel();
+                loadGroups();
+            } else {
+                showLoginForm();
+            }
+
+            // Login form submission
+            if (loginForm) {
+                loginForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    
+                    const username = document.getElementById('username').value;
+                    const password = document.getElementById('password').value;
+                    
+                    // Simple demo authentication
+                    if (username === DEMO_USERNAME && password === DEMO_PASSWORD) {
+                        localStorage.setItem('demoAdminLoggedIn', 'true');
+                        showAdminPanel();
+                        loadGroups();
+                    } else {
+                        showLoginMessage('Невірний логін або пароль', 'error');
+                    }
+                });
+            }
+
+            // Logout button
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', () => {
+                    localStorage.removeItem('demoAdminLoggedIn');
+                    showLoginForm();
+                });
+            }
+
+            // Group form submission
+            if (groupForm) {
+                groupForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    
+                    const groupName = document.getElementById('group-name').value;
+                    
+                    if (!groupName) {
+                        showAdminMessage('Введіть назву групи', 'error');
+                        return;
+                    }
+                    
+                    // Get existing groups from localStorage
+                    let groups = JSON.parse(localStorage.getItem('demoGroups') || '[]');
+                    
+                    // Check if group already exists
+                    if (groups.some(group => group.name === groupName)) {
+                        showAdminMessage('Група з такою назвою вже існує', 'error');
+                        return;
+                    }
+                    
+                    // Add new group
+                    groups.push({ name: groupName });
+                    localStorage.setItem('demoGroups', JSON.stringify(groups));
+                    
+                    // Reset form and reload groups
+                    document.getElementById('group-name').value = '';
+                    loadGroups();
+                    
+                    showAdminMessage('Група успішно додана', 'success');
+                });
+            }
+
+            // Load groups from localStorage
+            function loadGroups() {
+                const groups = JSON.parse(localStorage.getItem('demoGroups') || '[]');
+                
+                if (groups.length === 0) {
+                    // Add some demo groups if none exist
+                    const demoGroups = [
+                        { name: "Група 101" },
+                        { name: "Група 102" },
+                        { name: "Група 103" },
+                        { name: "Група 201" },
+                        { name: "Група 202" }
+                    ];
+                    localStorage.setItem('demoGroups', JSON.stringify(demoGroups));
+                    renderGroups(demoGroups);
+                } else {
+                    renderGroups(groups);
+                }
+            }
+
+            // Render groups in the list
+            function renderGroups(groups) {
+                groupList.innerHTML = '';
+                
+                groups.forEach(group => {
+                    const item = document.createElement('div');
+                    item.className = 'group-item';
+                    
+                    const name = document.createElement('span');
+                    name.textContent = group.name;
+                    
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.className = 'delete-btn';
+                    deleteBtn.textContent = 'Видалити';
+                    deleteBtn.addEventListener('click', () => deleteGroup(group.name));
+                    
+                    item.appendChild(name);
+                    item.appendChild(deleteBtn);
+                    groupList.appendChild(item);
+                });
+            }
+
+            // Delete a group
+            function deleteGroup(groupName) {
+                let groups = JSON.parse(localStorage.getItem('demoGroups') || '[]');
+                groups = groups.filter(group => group.name !== groupName);
+                localStorage.setItem('demoGroups', JSON.stringify(groups));
+                
+                loadGroups();
+                showAdminMessage('Група успішно видалена', 'success');
+            }
+
+            // Show login form
+            function showLoginForm() {
+                loginForm.style.display = 'block';
+                adminPanel.style.display = 'none';
+            }
+
+            // Show admin panel
+            function showAdminPanel() {
+                loginForm.style.display = 'none';
+                adminPanel.style.display = 'block';
+            }
+
+            // Show login message
+            function showLoginMessage(message, type) {
+                loginMessage.textContent = message;
+                loginMessage.className = 'message';
+                loginMessage.classList.add(type);
+                
+                setTimeout(() => {
+                    loginMessage.textContent = '';
+                    loginMessage.className = 'message';
+                }, 5000);
+            }
+
+            // Show admin message
+            function showAdminMessage(message, type) {
+                const adminMessage = document.getElementById('admin-message');
+                adminMessage.textContent = message;
+                adminMessage.className = 'message';
+                adminMessage.classList.add(type);
+                
+                setTimeout(() => {
+                    adminMessage.textContent = '';
+                    adminMessage.className = 'message';
+                }, 5000);
+            }
+        });
+    </script>
+</body>
+</html>
