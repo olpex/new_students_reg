@@ -49,12 +49,12 @@ function doPost(e) {
         'Email'
       ];
       
-      // Set all columns to width 120
+      // Set all columns to width 142
       for (let i = 1; i <= headers.length; i++) {
-        sheet.setColumnWidth(i, 120);
+        sheet.setColumnWidth(i, 142);
       }
       
-      Logger.log("Column widths set to 120 for new sheet");
+      Logger.log("Column widths set to 142 for new sheet");
     }
     
     // Always ensure Ukrainian headers for every request
@@ -223,9 +223,9 @@ function ensureUkrainianHeaders(sheet) {
   // Format the timestamp column
   sheet.getRange('A:A').setNumberFormat('dd.mm.yyyy hh:mm:ss');
   
-  // Set all columns to width 120
+  // Set all columns to width 142
   for (let i = 1; i <= headers.length; i++) {
-    sheet.setColumnWidth(i, 120);
+    sheet.setColumnWidth(i, 142);
   }
   
   // Add a basic style to the header row
@@ -241,7 +241,7 @@ function ensureUkrainianHeaders(sheet) {
   headerRange.setHorizontalAlignment('center');
   headerRange.setVerticalAlignment('middle');
   
-  Logger.log("Headers set to Ukrainian and column widths set to 120");
+  Logger.log("Headers set to Ukrainian and column widths set to 142");
 }
 
 /**
