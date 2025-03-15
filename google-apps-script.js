@@ -203,10 +203,10 @@ function setupSheet(sheet) {
 function ensureUkrainianHeaders(sheet) {
   const headers = [
     'Дата реєстрації',
-    'Прізвище, ім\'я та по батькові',
+    'Прізвище, ім\'я\nта по батькові',
     'Дата народження',
     'Місце реєстрації',
-    'Ідентифікаційний код',
+    'Ідентифікаційний\nкод',
     'Телефон',
     'Email'
   ];
@@ -237,6 +237,9 @@ function ensureUkrainianHeaders(sheet) {
   // Center text horizontally and vertically
   headerRange.setHorizontalAlignment('center');
   headerRange.setVerticalAlignment('middle');
+  
+  // Enable text wrapping for headers
+  headerRange.setWrapStrategy(SpreadsheetApp.WrapStrategy.WRAP);
   
   Logger.log("Headers set to Ukrainian and column widths set to 142");
 }
