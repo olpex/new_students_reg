@@ -36,18 +36,18 @@ function doPost(e) {
 
     // Create row data
     const rowData = [
-      new Date(), // Timestamp
-      data.lastName, // Last name
-      data.firstName, // First name
-      data.patronymic, // Patronymic
-      data.dob, // Date of birth
-      data.region || '', // Region
-      data.city, // City/Town/Village
-      data.street, // Street
-      data.house, // House
-      data.apartment || '', // Apartment
-      data.idCode, // Identification code
-      data.phone, // Phone number
+      new Date(), // Дата реєстрації
+      data.lastName, // Прізвище
+      data.firstName, // Ім'я
+      data.patronymic, // По батькові
+      data.dob, // Дата народження
+      data.region || '', // Область
+      data.city, // Місто/селище/село
+      data.street, // Вулиця
+      data.house, // Будинок
+      data.apartment || '', // Квартира
+      data.idCode, // Ідентифікаційний код
+      data.phone, // Телефон
       data.email, // Email
     ];
 
