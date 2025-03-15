@@ -166,18 +166,18 @@ function doGet(e) {
  */
 function setupSheet(sheet) {
   const headers = [
-    'Date of registration',
-    'Last name',
-    'First name',
-    'Patronymic',
-    'Date of birth',
-    'Region',
-    'City/Town/Village',
-    'Street',
-    'House',
-    'Apartment',
-    'Identification code',
-    'Phone',
+    'Дата реєстрації',
+    'Прізвище',
+    "Ім'я",
+    'По батькові',
+    'Дата народження',
+    'Область',
+    'Місто/селище/село',
+    'Вулиця',
+    'Будинок',
+    'Квартира',
+    'Ідентифікаційний код',
+    'Телефон',
     'Email'
   ];
   
