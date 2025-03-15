@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Реєстрація слухачів на навчання</title>
-    <link href="https://fonts.googleapis.com/css2?family="Montserrat:wght@400;500;700&family=Montserrat:wght@600;700&display=swap" rel="stylesheet">
+    <title>Реєстрація слухачів на навчання (Live Server)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&family=Montserrat:wght@600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./css/style.css">
 </head>
 <body>
@@ -26,98 +26,96 @@
                         <label for="group">Група:</label>
                         <select id="group" name="group" required>
                             <option value="">Виберіть групу</option>
-                            <!-- Groups will be loaded dynamically -->
                         </select>
                     </div>
 
-                    <div class="form-group">
-                        <label for="lastName">Прізвище:</label>
-                        <input type="text" id="lastName" name="lastName" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="firstName">Ім'я:</label>
-                        <input type="text" id="firstName" name="firstName" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="patronymic">По батькові:</label>
-                        <input type="text" id="patronymic" name="patronymic" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="birthDate">Дата народження:</label>
-                        <input type="date" id="birthDate" name="birthDate" required>
-                    </div>
-                    
-                    <h3>Місце реєстрації</h3>
                     <div class="form-section">
+                        <h3>Особисті дані</h3>
+                        <div class="form-group">
+                            <label for="lastName">Прізвище:</label>
+                            <input type="text" id="lastName" name="lastName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="firstName">Ім'я:</label>
+                            <input type="text" id="firstName" name="firstName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="patronymic">По батькові:</label>
+                            <input type="text" id="patronymic" name="patronymic">
+                        </div>
+                        <div class="form-group">
+                            <label for="birthDate">Дата народження:</label>
+                            <input type="date" id="birthDate" name="birthDate" required>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>Адреса</h3>
                         <div class="form-group">
                             <label for="region">Область:</label>
                             <select id="region" name="region" required>
                                 <option value="">Виберіть область</option>
-                                <option value="Вінницька область">Вінницька область</option>
-                                <option value="Волинська область">Волинська область</option>
-                                <option value="Дніпропетровська область">Дніпропетровська область</option>
-                                <option value="Донецька область">Донецька область</option>
-                                <option value="Житомирська область">Житомирська область</option>
-                                <option value="Закарпатська область">Закарпатська область</option>
-                                <option value="Запорізька область">Запорізька область</option>
-                                <option value="Івано-Франківська область">Івано-Франківська область</option>
-                                <option value="Київська область">Київська область</option>
-                                <option value="Кіровоградська область">Кіровоградська область</option>
-                                <option value="Луганська область">Луганська область</option>
-                                <option value="Львівська область">Львівська область</option>
-                                <option value="Миколаївська область">Миколаївська область</option>
-                                <option value="Одеська область">Одеська область</option>
-                                <option value="Полтавська область">Полтавська область</option>
-                                <option value="Рівненська область">Рівненська область</option>
-                                <option value="Сумська область">Сумська область</option>
-                                <option value="Тернопільська область">Тернопільська область</option>
-                                <option value="Харківська область">Харківська область</option>
-                                <option value="Херсонська область">Херсонська область</option>
-                                <option value="Хмельницька область">Хмельницька область</option>
-                                <option value="Черкаська область">Черкаська область</option>
-                                <option value="Чернівецька область">Чернівецька область</option>
-                                <option value="Чернігівська область">Чернігівська область</option>
-                                <option value="Автономна республіка Крим">Автономна республіка Крим</option>
+                                <option value="Вінницька">Вінницька</option>
+                                <option value="Волинська">Волинська</option>
+                                <option value="Дніпропетровська">Дніпропетровська</option>
+                                <option value="Донецька">Донецька</option>
+                                <option value="Житомирська">Житомирська</option>
+                                <option value="Закарпатська">Закарпатська</option>
+                                <option value="Запорізька">Запорізька</option>
+                                <option value="Івано-Франківська">Івано-Франківська</option>
+                                <option value="Київська">Київська</option>
+                                <option value="Кіровоградська">Кіровоградська</option>
+                                <option value="Луганська">Луганська</option>
+                                <option value="Львівська">Львівська</option>
+                                <option value="Миколаївська">Миколаївська</option>
+                                <option value="Одеська">Одеська</option>
+                                <option value="Полтавська">Полтавська</option>
+                                <option value="Рівненська">Рівненська</option>
+                                <option value="Сумська">Сумська</option>
+                                <option value="Тернопільська">Тернопільська</option>
+                                <option value="Харківська">Харківська</option>
+                                <option value="Херсонська">Херсонська</option>
+                                <option value="Хмельницька">Хмельницька</option>
+                                <option value="Черкаська">Черкаська</option>
+                                <option value="Чернівецька">Чернівецька</option>
+                                <option value="Чернігівська">Чернігівська</option>
+                                <option value="м. Київ">м. Київ</option>
                             </select>
                         </div>
-
                         <div class="form-group">
-                            <label for="city">Місто/селище/село:</label>
+                            <label for="city">Місто/село:</label>
                             <input type="text" id="city" name="city" required>
                         </div>
-
                         <div class="form-group">
                             <label for="street">Вулиця:</label>
-                            <input type="text" id="street" name="street" required>
+                            <input type="text" id="street" name="street">
                         </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="house">Будинок:</label>
+                                <input type="text" id="house" name="house">
+                            </div>
+                            <div class="form-group">
+                                <label for="apartment">Квартира:</label>
+                                <input type="text" id="apartment" name="apartment">
+                            </div>
+                        </div>
+                    </div>
 
+                    <div class="form-section">
+                        <h3>Контактна інформація</h3>
                         <div class="form-group">
-                            <label for="house">Будинок:</label>
-                            <input type="text" id="house" name="house" required>
+                            <label for="idCode">Ідентифікаційний код:</label>
+                            <input type="text" id="idCode" name="idCode" required pattern="[0-9]{10}" title="Ідентифікаційний код повинен містити 10 цифр">
                         </div>
-
                         <div class="form-group">
-                            <label for="apartment">Квартира:</label>
-                            <input type="text" id="apartment" name="apartment">
+                            <label for="phone">Телефон:</label>
+                            <input type="tel" id="phone" name="phone" required>
                         </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="idCode">Ідентифікаційний код:</label>
-                        <input type="text" id="idCode" name="idCode" required pattern="[0-9]{10}" title="Ідентифікаційний код повинен містити 10 цифр">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="email">Email:</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="phone">Телефон:</label>
-                        <input type="tel" id="phone" name="phone" required placeholder="+380XXXXXXXXX">
+                        <div class="form-group">
+                            <label for="email">Email:</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
                     </div>
 
                     <button type="submit" class="btn">Зареєструватися</button>
@@ -132,6 +130,6 @@
         </div>
     </footer>
 
-    <script src="/js/main.js"></script>
+    <script src="./js/main-live.js"></script>
 </body>
 </html>
