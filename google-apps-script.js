@@ -30,13 +30,12 @@ function doPost(e) {
     let sheet = spreadsheet.getSheetByName(data.sheetName);
     if (!sheet) {
       sheet = spreadsheet.insertSheet(data.sheetName);
-      setupSheet(sheet); // Set up the headers for the new sheet
       Logger.log("New sheet created: " + data.sheetName);
-    } else if (data.useUkrainianHeaders) {
-      // Check if the headers are in Ukrainian and update them if needed
-      ensureUkrainianHeaders(sheet);
     }
-
+    
+    // Always ensure Ukrainian headers for every request
+    ensureUkrainianHeaders(sheet);
+    
     // Create row data
     const rowData = [
       new Date(), // Дата реєстрації
@@ -168,39 +167,7 @@ function doGet(e) {
  * Creates a new sheet with headers and formatting
  */
 function setupSheet(sheet) {
-  const headers = [
-    'Дата реєстрації',
-    'Прізвище',
-    "Ім'я",
-    'По батькові',
-    'Дата народження',
-    'Область',
-    'Місто/Селище/Село',
-    'Вулиця',
-    'Будинок',
-    'Квартира',
-    'Ідентифікаційний код',
-    'Телефон',
-    'Email'
-  ];
-  
-  // Add headers to the first row
-  sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
-  
-  // Freeze the row of headers
-  sheet.setFrozenRows(1);
-  
-  // Format the timestamp column
-  sheet.getRange('A:A').setNumberFormat('dd.mm.yyyy hh:mm:ss');
-  
-  // Automatically resize columns according to the content
-  sheet.autoResizeColumns(1, headers.length);
-  
-  // Add a basic style to the header row
-  const headerRange = sheet.getRange(1, 1, 1, headers.length);
-  headerRange.setBackground('#4285F4');
-  headerRange.setFontColor('#FFFFFF');
-  headerRange.setFontWeight('bold');
+  ensureUkrainianHeaders(sheet);
 }
 
 /**
@@ -223,30 +190,25 @@ function ensureUkrainianHeaders(sheet) {
     'Email'
   ];
   
-  // Get the current headers
-  const currentHeaders = sheet.getRange(1, 1, 1, headers.length).getValues()[0];
+  // Always set the headers to Ukrainian, regardless of what's currently there
+  sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
   
-  // Check if any headers need to be updated (e.g., English to Ukrainian)
-  let needsUpdate = false;
-  for (let i = 0; i < headers.length; i++) {
-    if (currentHeaders[i] !== headers[i]) {
-      needsUpdate = true;
-      break;
-    }
-  }
+  // Freeze the row of headers
+  sheet.setFrozenRows(1);
   
-  // Update headers if needed
-  if (needsUpdate) {
-    sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
-    
-    // Reapply formatting
-    const headerRange = sheet.getRange(1, 1, 1, headers.length);
-    headerRange.setBackground('#4285F4');
-    headerRange.setFontColor('#FFFFFF');
-    headerRange.setFontWeight('bold');
-    
-    Logger.log("Headers updated to Ukrainian");
-  }
+  // Format the timestamp column
+  sheet.getRange('A:A').setNumberFormat('dd.mm.yyyy hh:mm:ss');
+  
+  // Automatically resize columns according to the content
+  sheet.autoResizeColumns(1, headers.length);
+  
+  // Add a basic style to the header row
+  const headerRange = sheet.getRange(1, 1, 1, headers.length);
+  headerRange.setBackground('#4285F4');
+  headerRange.setFontColor('#FFFFFF');
+  headerRange.setFontWeight('bold');
+  
+  Logger.log("Headers set to Ukrainian");
 }
 
 /**
