@@ -199,8 +199,10 @@ function ensureUkrainianHeaders(sheet) {
   // Format the timestamp column
   sheet.getRange('A:A').setNumberFormat('dd.mm.yyyy hh:mm:ss');
   
-  // Automatically resize columns according to the content
-  sheet.autoResizeColumns(1, headers.length);
+  // Set all columns to width 120
+  for (let i = 1; i <= headers.length; i++) {
+    sheet.setColumnWidth(i, 120);
+  }
   
   // Add a basic style to the header row
   const headerRange = sheet.getRange(1, 1, 1, headers.length);
@@ -208,7 +210,7 @@ function ensureUkrainianHeaders(sheet) {
   headerRange.setFontColor('#FFFFFF');
   headerRange.setFontWeight('bold');
   
-  Logger.log("Headers set to Ukrainian");
+  Logger.log("Headers set to Ukrainian and column widths set to 120");
 }
 
 /**
