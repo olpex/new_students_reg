@@ -31,6 +31,30 @@ function doPost(e) {
     if (!sheet) {
       sheet = spreadsheet.insertSheet(data.sheetName);
       Logger.log("New sheet created: " + data.sheetName);
+      
+      // Set column widths immediately after creating a new sheet
+      const headers = [
+        'Дата реєстрації',
+        'Прізвище',
+        'Ім\'я',
+        'По батькові',
+        'Дата народження',
+        'Область',
+        'Місто/Селище/Село',
+        'Вулиця',
+        'Будинок',
+        'Квартира',
+        'Ідентифікаційний код',
+        'Телефон',
+        'Email'
+      ];
+      
+      // Set all columns to width 120
+      for (let i = 1; i <= headers.length; i++) {
+        sheet.setColumnWidth(i, 120);
+      }
+      
+      Logger.log("Column widths set to 120 for new sheet");
     }
     
     // Always ensure Ukrainian headers for every request
