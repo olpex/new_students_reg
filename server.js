@@ -122,6 +122,9 @@ async function sendToGoogleSheets(groupName, data) {
     const GOOGLE_SHEETS_ID = process.env.GOOGLE_SHEETS_ID;
     
     try {
+        // First, directly create or update the sheet with Ukrainian headers using Google Sheets API
+        await ensureUkrainianHeadersInSheet(GOOGLE_SHEETS_ID, groupName);
+        
         // Use fetch to call the Google Apps Script web app
         const appScriptUrl = `https://script.google.com/macros/s/${GOOGLE_APP_SCRIPT_ID}/exec`;
         
@@ -179,6 +182,174 @@ async function sendToGoogleSheets(groupName, data) {
     } catch (error) {
         console.error('Error sending data to Google Sheets:', error.toString());
         console.error('Error details:', error);
+        return false;
+    }
+}
+
+// Function to ensure Ukrainian headers in a Google Sheet
+async function ensureUkrainianHeadersInSheet(spreadsheetId, sheetName) {
+    try {
+        console.log(`Ensuring Ukrainian headers in sheet: ${sheetName}`);
+        
+        // Define the Ukrainian headers
+        const ukrainianHeaders = [
+            'Дата реєстрації',
+            'Прізвище',
+            'Ім\'я',
+            'По батькові',
+            'Дата народження',
+            'Область',
+            'Місто/Селище/Село',
+            'Вулиця',
+            'Будинок',
+            'Квартира',
+            'Ідентифікаційний код',
+            'Телефон',
+            'Email'
+        ];
+        
+        // Create a direct HTTP request to the Google Sheets API
+        const sheetsApiUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}:batchUpdate`;
+        
+        // Get the OAuth2 token from environment variables or another secure source
+        // For simplicity in this example, we're using a direct fetch, but in production
+        // you should use proper OAuth2 authentication
+        const accessToken = process.env.GOOGLE_API_ACCESS_TOKEN;
+        
+        if (!accessToken) {
+            console.error('No Google API access token found in environment variables');
+            return false;
+        }
+        
+        // Check if the sheet exists and get its ID
+        const spreadsheetUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}`;
+        const spreadsheetResponse = await fetch(spreadsheetUrl, {
+            headers: {
+                'Authorization': `Bearer ${accessToken}`
+            }
+        });
+        
+        if (!spreadsheetResponse.ok) {
+            console.error(`Failed to get spreadsheet: ${spreadsheetResponse.status}`);
+            return false;
+        }
+        
+        const spreadsheetData = await spreadsheetResponse.json();
+        let sheetId = null;
+        let sheetExists = false;
+        
+        // Find the sheet by name
+        for (const sheet of spreadsheetData.sheets) {
+            if (sheet.properties.title === sheetName) {
+                sheetId = sheet.properties.sheetId;
+                sheetExists = true;
+                break;
+            }
+        }
+        
+        // Prepare the request body
+        let requestBody = {
+            requests: []
+        };
+        
+        if (!sheetExists) {
+            // Add a request to create the sheet
+            requestBody.requests.push({
+                addSheet: {
+                    properties: {
+                        title: sheetName
+                    }
+                }
+            });
+            
+            // Send the request to create the sheet
+            const createResponse = await fetch(sheetsApiUrl, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestBody)
+            });
+            
+            if (!createResponse.ok) {
+                console.error(`Failed to create sheet: ${createResponse.status}`);
+                return false;
+            }
+            
+            const createData = await createResponse.json();
+            sheetId = createData.replies[0].addSheet.properties.sheetId;
+            
+            // Reset requests for the next operation
+            requestBody.requests = [];
+        }
+        
+        // Add a request to update the headers
+        requestBody.requests.push({
+            updateCells: {
+                start: {
+                    sheetId: sheetId,
+                    rowIndex: 0,
+                    columnIndex: 0
+                },
+                rows: [{
+                    values: ukrainianHeaders.map(header => ({
+                        userEnteredValue: {
+                            stringValue: header
+                        },
+                        userEnteredFormat: {
+                            backgroundColor: {
+                                red: 0.26,
+                                green: 0.52,
+                                blue: 0.96
+                            },
+                            textFormat: {
+                                foregroundColor: {
+                                    red: 1.0,
+                                    green: 1.0,
+                                    blue: 1.0
+                                },
+                                bold: true
+                            }
+                        }
+                    }))
+                }],
+                fields: 'userEnteredValue,userEnteredFormat'
+            }
+        });
+        
+        // Add a request to freeze the first row
+        requestBody.requests.push({
+            updateSheetProperties: {
+                properties: {
+                    sheetId: sheetId,
+                    gridProperties: {
+                        frozenRowCount: 1
+                    }
+                },
+                fields: 'gridProperties.frozenRowCount'
+            }
+        });
+        
+        // Send the request to update the headers
+        const updateResponse = await fetch(sheetsApiUrl, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestBody)
+        });
+        
+        if (!updateResponse.ok) {
+            console.error(`Failed to update headers: ${updateResponse.status}`);
+            return false;
+        }
+        
+        console.log('Successfully ensured Ukrainian headers in the sheet');
+        return true;
+    } catch (error) {
+        console.error('Error ensuring Ukrainian headers:', error);
         return false;
     }
 }

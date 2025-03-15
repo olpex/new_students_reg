@@ -53,14 +53,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     apartment: formData.apartment,
                     idCode: formData.idCode,
                     phone: formData.phone,
-                    email: formData.email
+                    email: formData.email,
+                    useUkrainianHeaders: true // Flag to ensure Ukrainian headers are used
                 };
                 
-                const googleScriptUrl = 'https://script.google.com/macros/s/AKfycbyg5dOON-ngo3hIz9s50VskOEhZY8pTPMd-7X7X-AfGMN38DG1GhoDlyj7dTs9z3x1nPA/exec';
+                const googleScriptUrl = 'https://script.google.com/macros/s/AKfycbzK6m_OB7aIoMI14VfMtxCdqGChP0oW4-Krb2biqI6D-4g2YdiV7U4yXf-j1pxdgtHG9Q/exec';
                 
-                // Use fetch API with JSONP-like approach
-                const response = await fetch(googleScriptUrl + '?data=' + encodeURIComponent(JSON.stringify(googleScriptData)), {
-                    method: 'GET',
+                // Use fetch API with POST request
+                const response = await fetch(googleScriptUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(googleScriptData),
                     mode: 'no-cors' // This prevents CORS issues
                 });
                 
