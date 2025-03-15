@@ -40,8 +40,34 @@ document.addEventListener('DOMContentLoaded', () => {
             // Try to submit to Google Sheets
             try {
                 // Format the address according to the required format
-                const houseApartment = formData.apartment ? `${formData.house}/${formData.apartment}` : formData.house;
-                const formattedAddress = `${formData.city || ''}, вул. ${formData.street || ''}, ${houseApartment || ''}, ${formData.region || ''}`;
+                const addressParts = [];
+                
+                // Add city if it exists
+                if (formData.city && formData.city.trim()) {
+                    addressParts.push(formData.city.trim());
+                }
+                
+                // Add street if it exists
+                if (formData.street && formData.street.trim()) {
+                    addressParts.push(`вул. ${formData.street.trim()}`);
+                }
+                
+                // Handle house and apartment
+                if (formData.house && formData.house.trim()) {
+                    if (formData.apartment && formData.apartment.trim()) {
+                        addressParts.push(`${formData.house.trim()}/${formData.apartment.trim()}`);
+                    } else {
+                        addressParts.push(formData.house.trim());
+                    }
+                }
+                
+                // Add region if it exists
+                if (formData.region && formData.region.trim()) {
+                    addressParts.push(formData.region.trim());
+                }
+                
+                // Join all parts with commas
+                const formattedAddress = addressParts.join(', ');
                 
                 const googleScriptData = {
                     sheetId: '1T-z_wf1Vdo_oYyII5ywUR1mM0P69nvRIz8Ry98TupeE',

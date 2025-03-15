@@ -118,11 +118,35 @@ app.post('/api/groups', verifyToken, (req, res) => {
 
 // Function to format address
 function formatAddress(data) {
-    // Handle apartment - if it exists, format as house/apartment, otherwise just house
-    const houseApartment = data.apartment ? `${data.house}/${data.apartment}` : data.house;
+    // Create an array of address parts
+    const addressParts = [];
     
-    // Format as "Місто/селище/село, вул. Вулиця, Будинок/Квартира, Область"
-    return `${data.city || ''}, вул. ${data.street || ''}, ${houseApartment || ''}, ${data.region || ''}`;
+    // Add city if it exists
+    if (data.city && data.city.trim()) {
+        addressParts.push(data.city.trim());
+    }
+    
+    // Add street if it exists
+    if (data.street && data.street.trim()) {
+        addressParts.push(`вул. ${data.street.trim()}`);
+    }
+    
+    // Handle house and apartment
+    if (data.house && data.house.trim()) {
+        if (data.apartment && data.apartment.trim()) {
+            addressParts.push(`${data.house.trim()}/${data.apartment.trim()}`);
+        } else {
+            addressParts.push(data.house.trim());
+        }
+    }
+    
+    // Add region if it exists
+    if (data.region && data.region.trim()) {
+        addressParts.push(data.region.trim());
+    }
+    
+    // Join all parts with commas
+    return addressParts.join(', ');
 }
 
 // Function to send data to Google Sheets using Apps Script

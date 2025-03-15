@@ -236,11 +236,35 @@ function ensureUkrainianHeaders(sheet) {
  * Formats the address in the requested format
  */
 function formatAddress(city, street, house, apartment, region) {
-  // Handle apartment - if it exists, format as house/apartment, otherwise just house
-  const houseApartment = apartment ? `${house}/${apartment}` : house;
+  // Create an array of address parts
+  const addressParts = [];
   
-  // Format as "Місто/селище/село, вул. Вулиця, Будинок/Квартира, Область"
-  return `${city || ''}, вул. ${street || ''}, ${houseApartment || ''}, ${region || ''}`;
+  // Add city if it exists
+  if (city && city.trim()) {
+    addressParts.push(city.trim());
+  }
+  
+  // Add street if it exists
+  if (street && street.trim()) {
+    addressParts.push(`вул. ${street.trim()}`);
+  }
+  
+  // Handle house and apartment
+  if (house && house.trim()) {
+    if (apartment && apartment.trim()) {
+      addressParts.push(`${house.trim()}/${apartment.trim()}`);
+    } else {
+      addressParts.push(house.trim());
+    }
+  }
+  
+  // Add region if it exists
+  if (region && region.trim()) {
+    addressParts.push(region.trim());
+  }
+  
+  // Join all parts with commas
+  return addressParts.join(', ');
 }
 
 /**
