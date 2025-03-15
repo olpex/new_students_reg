@@ -140,7 +140,8 @@ async function sendToGoogleSheets(groupName, data) {
             apartment: data.apartment,
             idCode: data.idCode,
             phone: data.phone,
-            email: data.email
+            email: data.email,
+            useUkrainianHeaders: true // Flag to ensure Ukrainian headers are used
         };
 
         console.log('Sending data to Google Apps Script URL:', appScriptUrl);

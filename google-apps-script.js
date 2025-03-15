@@ -32,7 +32,7 @@ function doPost(e) {
       sheet = spreadsheet.insertSheet(data.sheetName);
       setupSheet(sheet); // Set up the headers for the new sheet
       Logger.log("New sheet created: " + data.sheetName);
-    } else {
+    } else if (data.useUkrainianHeaders) {
       // Check if the headers are in Ukrainian and update them if needed
       ensureUkrainianHeaders(sheet);
     }
