@@ -119,7 +119,7 @@ app.post('/api/groups', verifyToken, (req, res) => {
 // Function to send data to Google Sheets using Apps Script
 async function sendToGoogleSheets(groupName, data) {
     // Use the latest script ID if not set in environment variables
-    const GOOGLE_APP_SCRIPT_ID = process.env.GOOGLE_APP_SCRIPT_ID || 'AKfycbyqRuaQbVZq7fCuMKM9hSstICnl62UYeB7umUyJ7YGe88h4l_4BelAZFkauovJkYFB3Pw';
+    const GOOGLE_APP_SCRIPT_ID = process.env.GOOGLE_APP_SCRIPT_ID || 'AKfycbyNTKevjiq_P8-KLyLacN_a2q6L-Kge-Xba8cVK193iZar9crMxKeyWMe64cd4l577UpQ';
     const GOOGLE_SHEETS_ID = process.env.GOOGLE_SHEETS_ID;
     
     try {
