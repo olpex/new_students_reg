@@ -32,6 +32,9 @@ function doPost(e) {
       sheet = spreadsheet.insertSheet(data.sheetName);
       setupSheet(sheet); // Set up the headers for the new sheet
       Logger.log("New sheet created: " + data.sheetName);
+    } else {
+      // Check if the headers are in Ukrainian and update them if needed
+      ensureUkrainianHeaders(sheet);
     }
 
     // Create row data
@@ -172,7 +175,7 @@ function setupSheet(sheet) {
     'По батькові',
     'Дата народження',
     'Область',
-    'Місто/селище/село',
+    'Місто/Селище/Село',
     'Вулиця',
     'Будинок',
     'Квартира',
@@ -198,6 +201,52 @@ function setupSheet(sheet) {
   headerRange.setBackground('#4285F4');
   headerRange.setFontColor('#FFFFFF');
   headerRange.setFontWeight('bold');
+}
+
+/**
+ * Ensures that the headers in the sheet are in Ukrainian
+ */
+function ensureUkrainianHeaders(sheet) {
+  const headers = [
+    'Дата реєстрації',
+    'Прізвище',
+    'Ім\'я',
+    'По батькові',
+    'Дата народження',
+    'Область',
+    'Місто/Селище/Село',
+    'Вулиця',
+    'Будинок',
+    'Квартира',
+    'Ідентифікаційний код',
+    'Телефон',
+    'Email'
+  ];
+  
+  // Get the current headers
+  const currentHeaders = sheet.getRange(1, 1, 1, headers.length).getValues()[0];
+  
+  // Check if any headers need to be updated (e.g., English to Ukrainian)
+  let needsUpdate = false;
+  for (let i = 0; i < headers.length; i++) {
+    if (currentHeaders[i] !== headers[i]) {
+      needsUpdate = true;
+      break;
+    }
+  }
+  
+  // Update headers if needed
+  if (needsUpdate) {
+    sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+    
+    // Reapply formatting
+    const headerRange = sheet.getRange(1, 1, 1, headers.length);
+    headerRange.setBackground('#4285F4');
+    headerRange.setFontColor('#FFFFFF');
+    headerRange.setFontWeight('bold');
+    
+    Logger.log("Headers updated to Ukrainian");
+  }
 }
 
 /**
