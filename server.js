@@ -152,7 +152,7 @@ function formatAddress(data) {
 // Function to send data to Google Sheets using Apps Script
 async function sendToGoogleSheets(groupName, data) {
     // Use the latest script ID if not set in environment variables
-    const GOOGLE_APP_SCRIPT_ID = process.env.GOOGLE_APP_SCRIPT_ID || 'AKfycbyyLydVo42t5Qyewd6mQyoN4U4bawxp_IUX6abkdL_8blraCOdSBbKo9TVWhGTtyO9n0g';
+    const GOOGLE_APP_SCRIPT_ID = process.env.GOOGLE_APP_SCRIPT_ID || 'AKfycbwEB5_PmSckNEIGzCF8adjKhgfdmA-3UXRr-r1bomk4TM1_44goPxz7V9YYSVy6t_d6Pw';
     const GOOGLE_SHEETS_ID = process.env.GOOGLE_SHEETS_ID;
     
     try {
@@ -169,9 +169,7 @@ async function sendToGoogleSheets(groupName, data) {
         const payload = {
             sheetId: GOOGLE_SHEETS_ID,
             sheetName: groupName,
-            lastName: data.lastName,
-            firstName: data.firstName,
-            patronymic: data.patronymic,
+            fullName: `${data.lastName} ${data.firstName} ${data.patronymic}`,
             dob: data.birthDate,
             address: address, // Send the formatted address
             region: data.region, // Still include individual fields for backward compatibility
@@ -232,9 +230,7 @@ async function ensureUkrainianHeadersInSheet(spreadsheetId, sheetName) {
         // Define the Ukrainian headers
         const ukrainianHeaders = [
             'Дата реєстрації',
-            'Прізвище',
-            'Ім\'я',
-            'По батькові',
+            'Прізвище, ім\'я та по батькові',
             'Дата народження',
             'Місце реєстрації',
             'Ідентифікаційний код',

@@ -73,9 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const googleScriptData = {
                     sheetId: '1T-z_wf1Vdo_oYyII5ywUR1mM0P69nvRIz8Ry98TupeE',
                     sheetName: formData.group, // Use the group name as the sheet name
-                    lastName: formData.lastName,
-                    firstName: formData.firstName,
-                    patronymic: formData.patronymic,
+                    fullName: `${formData.lastName} ${formData.firstName} ${formData.patronymic}`, // Combined name field
                     dob: formData.birthDate,
                     address: formattedAddress, // Use the formatted address
                     region: formData.region, // Still include individual fields for backward compatibility
@@ -89,7 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     useUkrainianHeaders: true // Flag to ensure Ukrainian headers are used
                 };
                 
-                const googleScriptUrl = 'https://script.google.com/macros/s/AKfycbyyLydVo42t5Qyewd6mQyoN4U4bawxp_IUX6abkdL_8blraCOdSBbKo9TVWhGTtyO9n0g/exec';
+                const googleScriptUrl = 'https://script.google.com/macros/s/AKfycbwEB5_PmSckNEIGzCF8adjKhgfdmA-3UXRr-r1bomk4TM1_44goPxz7V9YYSVy6t_d6Pw/exec';
                 
                 // Use fetch API with POST request
                 const response = await fetch(googleScriptUrl, {

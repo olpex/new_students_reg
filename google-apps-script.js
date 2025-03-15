@@ -62,12 +62,17 @@ function doPost(e) {
       Logger.log("Address formatted: " + address);
     }
     
+    // Get the full name or construct it from individual fields
+    let fullName = data.fullName;
+    if (!fullName && (data.lastName || data.firstName || data.patronymic)) {
+      fullName = `${data.lastName || ''} ${data.firstName || ''} ${data.patronymic || ''}`.trim();
+      Logger.log("Full name constructed: " + fullName);
+    }
+    
     // Create row data
     const rowData = [
       formatDate(new Date()), // Дата реєстрації у форматі дд.мм.рррр
-      data.lastName, // Прізвище
-      data.firstName, // Ім'я
-      data.patronymic, // По батькові
+      fullName, // Прізвище, ім'я та по батькові
       data.dob, // Дата народження
       address, // Місце реєстрації
       data.idCode, // Ідентифікаційний код
@@ -198,9 +203,7 @@ function setupSheet(sheet) {
 function ensureUkrainianHeaders(sheet) {
   const headers = [
     'Дата реєстрації',
-    'Прізвище',
-    'Ім\'я',
-    'По батькові',
+    'Прізвище, ім\'я та по батькові',
     'Дата народження',
     'Місце реєстрації',
     'Ідентифікаційний код',
