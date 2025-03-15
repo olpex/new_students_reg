@@ -140,9 +140,9 @@ function formatAddress(data) {
         }
     }
     
-    // Add region if it exists
+    // Add region if it exists, with "область" after it
     if (data.region && data.region.trim()) {
-        addressParts.push(data.region.trim());
+        addressParts.push(`${data.region.trim()} область`);
     }
     
     // Join all parts with commas
@@ -152,7 +152,7 @@ function formatAddress(data) {
 // Function to send data to Google Sheets using Apps Script
 async function sendToGoogleSheets(groupName, data) {
     // Use the latest script ID if not set in environment variables
-    const GOOGLE_APP_SCRIPT_ID = process.env.GOOGLE_APP_SCRIPT_ID || 'AKfycbzEvdR5rz1Tt31RwWMxQiVxKUhRPAinSLbr9VNw8TVcw6-cWkpzL8qzdu8mkrDu-EyBBA';
+    const GOOGLE_APP_SCRIPT_ID = process.env.GOOGLE_APP_SCRIPT_ID || 'AKfycbyyLydVo42t5Qyewd6mQyoN4U4bawxp_IUX6abkdL_8blraCOdSBbKo9TVWhGTtyO9n0g';
     const GOOGLE_SHEETS_ID = process.env.GOOGLE_SHEETS_ID;
     
     try {

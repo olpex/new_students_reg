@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // Add region if it exists
                 if (formData.region && formData.region.trim()) {
-                    addressParts.push(formData.region.trim());
+                    addressParts.push(`${formData.region.trim()} область`);
                 }
                 
                 // Join all parts with commas
@@ -89,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     useUkrainianHeaders: true // Flag to ensure Ukrainian headers are used
                 };
                 
-                const googleScriptUrl = 'https://script.google.com/macros/s/AKfycbzEvdR5rz1Tt31RwWMxQiVxKUhRPAinSLbr9VNw8TVcw6-cWkpzL8qzdu8mkrDu-EyBBA/exec';
+                const googleScriptUrl = 'https://script.google.com/macros/s/AKfycbyyLydVo42t5Qyewd6mQyoN4U4bawxp_IUX6abkdL_8blraCOdSBbKo9TVWhGTtyO9n0g/exec';
                 
                 // Use fetch API with POST request
                 const response = await fetch(googleScriptUrl, {

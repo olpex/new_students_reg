@@ -64,7 +64,7 @@ function doPost(e) {
     
     // Create row data
     const rowData = [
-      new Date(), // Дата реєстрації
+      formatDate(new Date()), // Дата реєстрації у форматі дд.мм.рррр
       data.lastName, // Прізвище
       data.firstName, // Ім'я
       data.patronymic, // По батькові
@@ -264,13 +264,23 @@ function formatAddress(city, street, house, apartment, region) {
     }
   }
   
-  // Add region if it exists
+  // Add region if it exists, with "область" after it
   if (region && region.trim()) {
-    addressParts.push(region.trim());
+    addressParts.push(`${region.trim()} область`);
   }
   
   // Join all parts with commas
   return addressParts.join(', ');
+}
+
+/**
+ * Formats a date in the format dd.mm.yyyy
+ */
+function formatDate(date) {
+  const day = date.getDate().toString().padStart(2, '0');
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const year = date.getFullYear();
+  return `${day}.${month}.${year}`;
 }
 
 /**
