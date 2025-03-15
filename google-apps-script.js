@@ -39,11 +39,7 @@ function doPost(e) {
         'Ім\'я',
         'По батькові',
         'Дата народження',
-        'Область',
-        'Місто/Селище/Село',
-        'Вулиця',
-        'Будинок',
-        'Квартира',
+        'Місце реєстрації',
         'Ідентифікаційний код',
         'Телефон',
         'Email'
@@ -67,11 +63,7 @@ function doPost(e) {
       data.firstName, // Ім'я
       data.patronymic, // По батькові
       data.dob, // Дата народження
-      data.region || '', // Область
-      data.city, // Місто/селище/село
-      data.street, // Вулиця
-      data.house, // Будинок
-      data.apartment || '', // Квартира
+      formatAddress(data.city, data.street, data.house, data.apartment, data.region), // Місце реєстрації
       data.idCode, // Ідентифікаційний код
       data.phone, // Телефон
       data.email, // Email
@@ -204,11 +196,7 @@ function ensureUkrainianHeaders(sheet) {
     'Ім\'я',
     'По батькові',
     'Дата народження',
-    'Область',
-    'Місто/Селище/Село',
-    'Вулиця',
-    'Будинок',
-    'Квартира',
+    'Місце реєстрації',
     'Ідентифікаційний код',
     'Телефон',
     'Email'
@@ -242,6 +230,17 @@ function ensureUkrainianHeaders(sheet) {
   headerRange.setVerticalAlignment('middle');
   
   Logger.log("Headers set to Ukrainian and column widths set to 142");
+}
+
+/**
+ * Formats the address in the requested format
+ */
+function formatAddress(city, street, house, apartment, region) {
+  // Handle apartment - if it exists, format as house/apartment, otherwise just house
+  const houseApartment = apartment ? `${house}/${apartment}` : house;
+  
+  // Format as "Місто/селище/село, вул. Вулиця, Будинок/Квартира, Область"
+  return `${city || ''}, вул. ${street || ''}, ${houseApartment || ''}, ${region || ''}`;
 }
 
 /**

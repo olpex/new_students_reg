@@ -39,6 +39,10 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             // Try to submit to Google Sheets
             try {
+                // Format the address according to the required format
+                const houseApartment = formData.apartment ? `${formData.house}/${formData.apartment}` : formData.house;
+                const formattedAddress = `${formData.city || ''}, вул. ${formData.street || ''}, ${houseApartment || ''}, ${formData.region || ''}`;
+                
                 const googleScriptData = {
                     sheetId: '1T-z_wf1Vdo_oYyII5ywUR1mM0P69nvRIz8Ry98TupeE',
                     sheetName: formData.group, // Use the group name as the sheet name
@@ -46,11 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     firstName: formData.firstName,
                     patronymic: formData.patronymic,
                     dob: formData.birthDate,
-                    region: formData.region,
-                    city: formData.city,
-                    street: formData.street,
-                    house: formData.house,
-                    apartment: formData.apartment,
+                    address: formattedAddress, // Use the formatted address
                     idCode: formData.idCode,
                     phone: formData.phone,
                     email: formData.email,

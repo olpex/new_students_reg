@@ -116,6 +116,15 @@ app.post('/api/groups', verifyToken, (req, res) => {
     res.status(201).json({ success: true, message: 'Групу додано' });
 });
 
+// Function to format address
+function formatAddress(data) {
+    // Handle apartment - if it exists, format as house/apartment, otherwise just house
+    const houseApartment = data.apartment ? `${data.house}/${data.apartment}` : data.house;
+    
+    // Format as "Місто/селище/село, вул. Вулиця, Будинок/Квартира, Область"
+    return `${data.city || ''}, вул. ${data.street || ''}, ${houseApartment || ''}, ${data.region || ''}`;
+}
+
 // Function to send data to Google Sheets using Apps Script
 async function sendToGoogleSheets(groupName, data) {
     // Use the latest script ID if not set in environment variables
@@ -137,11 +146,7 @@ async function sendToGoogleSheets(groupName, data) {
             firstName: data.firstName,
             patronymic: data.patronymic,
             dob: data.birthDate,
-            region: data.region,
-            city: data.city,
-            street: data.street,
-            house: data.house,
-            apartment: data.apartment,
+            address: formatAddress(data),
             idCode: data.idCode,
             phone: data.phone,
             email: data.email,
@@ -199,11 +204,7 @@ async function ensureUkrainianHeadersInSheet(spreadsheetId, sheetName) {
             'Ім\'я',
             'По батькові',
             'Дата народження',
-            'Область',
-            'Місто/Селище/Село',
-            'Вулиця',
-            'Будинок',
-            'Квартира',
+            'Місце реєстрації',
             'Ідентифікаційний код',
             'Телефон',
             'Email'
