@@ -310,8 +310,22 @@ async function ensureUkrainianHeadersInSheet(spreadsheetId, sheetName) {
                                     green: 1.0,
                                     blue: 1.0
                                 },
-                                bold: true
-                            }
+                                bold: true,
+                                horizontalAlignment: 'CENTER',
+                                verticalAlignment: 'MIDDLE'
+                            },
+                            numberFormat: {
+                                type: 'TEXT',
+                                pattern: ''
+                            },
+                            padding: {
+                                top: 10,
+                                right: 10,
+                                bottom: 10,
+                                left: 10
+                            },
+                            verticalAlignment: 'MIDDLE',
+                            wrapStrategy: 'LEGACY_WRAP'
                         }
                     }))
                 }],
@@ -329,6 +343,22 @@ async function ensureUkrainianHeadersInSheet(spreadsheetId, sheetName) {
                     }
                 },
                 fields: 'gridProperties.frozenRowCount'
+            }
+        });
+        
+        // Add a request to set row height
+        requestBody.requests.push({
+            updateDimensionProperties: {
+                range: {
+                    sheetId: sheetId,
+                    dimension: 'ROWS',
+                    startIndex: 0,
+                    endIndex: 1
+                },
+                properties: {
+                    pixelSize: 50
+                },
+                fields: 'pixelSize'
             }
         });
         

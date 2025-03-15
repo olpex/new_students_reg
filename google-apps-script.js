@@ -234,6 +234,13 @@ function ensureUkrainianHeaders(sheet) {
   headerRange.setFontColor('#FFFFFF');
   headerRange.setFontWeight('bold');
   
+  // Set row height to 50 points
+  sheet.setRowHeight(1, 50);
+  
+  // Center text horizontally and vertically
+  headerRange.setHorizontalAlignment('center');
+  headerRange.setVerticalAlignment('middle');
+  
   Logger.log("Headers set to Ukrainian and column widths set to 120");
 }
 
