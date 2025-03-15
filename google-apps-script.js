@@ -7,54 +7,60 @@
  * Processes POST requests with student data
  */
 function doPost(e) {
+  Logger.log("doPost called with: " + JSON.stringify(e));
+  
   try {
-    // Check if data is coming from form or direct JSON
+    // Parse the request data
     let data;
-    if (e.parameter && e.parameter.data) {
+    if (e.parameter && Object.keys(e.parameter).length > 0) {
       // Data is coming from form submission
-      data = JSON.parse(e.parameter.data);
+      data = e.parameter;
+      Logger.log("Form data received: " + JSON.stringify(data));
     } else if (e.postData && e.postData.contents) {
       // Data is coming from direct JSON
       data = JSON.parse(e.postData.contents);
+      Logger.log("JSON data received: " + JSON.stringify(data));
     } else {
       throw new Error('No data received');
     }
     
-    Logger.log("Received data: " + JSON.stringify(data));
-    
-    // Open the spreadsheet
-    const spreadsheet = SpreadsheetApp.openById(data.sheetId);
-    Logger.log("Spreadsheet opened: " + spreadsheet.getName());
-    
-    // Attempting to get an existing sheet or create a new one
-    let sheet = spreadsheet.getSheetByName(data.sheetName);
-    if (!sheet) {
-      sheet = spreadsheet.insertSheet(data.sheetName);
-      Logger.log("New sheet created: " + data.sheetName);
-      
-      // Set column widths immediately after creating a new sheet
-      const headers = [
-        'Дата реєстрації',
-        'Прізвище',
-        'Ім\'я',
-        'По батькові',
-        'Дата народження',
-        'Місце реєстрації',
-        'Ідентифікаційний код',
-        'Телефон',
-        'Email'
-      ];
-      
-      // Set all columns to width 142
-      for (let i = 1; i <= headers.length; i++) {
-        sheet.setColumnWidth(i, 142);
-      }
-      
-      Logger.log("Column widths set to 142 for new sheet");
+    // Get the sheet ID from the request
+    const sheetId = data.sheetId;
+    if (!sheetId) {
+      return ContentService.createTextOutput(JSON.stringify({
+        success: false,
+        message: "No sheet ID provided"
+      })).setMimeType(ContentService.MimeType.JSON);
     }
     
-    // Always ensure Ukrainian headers for every request
+    // Get the sheet name from the request
+    const sheetName = data.sheetName;
+    if (!sheetName) {
+      return ContentService.createTextOutput(JSON.stringify({
+        success: false,
+        message: "No sheet name provided"
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+    
+    // Open the spreadsheet
+    const spreadsheet = SpreadsheetApp.openById(sheetId);
+    
+    // Check if the sheet exists, create it if it doesn't
+    let sheet = spreadsheet.getSheetByName(sheetName);
+    if (!sheet) {
+      sheet = spreadsheet.insertSheet(sheetName);
+      Logger.log("Sheet created: " + sheetName);
+    }
+    
+    // Ensure Ukrainian headers are set
     ensureUkrainianHeaders(sheet);
+    
+    // Format the address if it's not already provided
+    let address = data.address;
+    if (!address && (data.city || data.street || data.house || data.region)) {
+      address = formatAddress(data.city, data.street, data.house, data.apartment, data.region);
+      Logger.log("Address formatted: " + address);
+    }
     
     // Create row data
     const rowData = [
@@ -63,7 +69,7 @@ function doPost(e) {
       data.firstName, // Ім'я
       data.patronymic, // По батькові
       data.dob, // Дата народження
-      formatAddress(data.city, data.street, data.house, data.apartment, data.region), // Місце реєстрації
+      address, // Місце реєстрації
       data.idCode, // Ідентифікаційний код
       data.phone, // Телефон
       data.email, // Email

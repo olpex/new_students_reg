@@ -68,6 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // Join all parts with commas
                 const formattedAddress = addressParts.join(', ');
+                console.log("Formatted address:", formattedAddress);
                 
                 const googleScriptData = {
                     sheetId: '1T-z_wf1Vdo_oYyII5ywUR1mM0P69nvRIz8Ry98TupeE',
@@ -77,13 +78,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     patronymic: formData.patronymic,
                     dob: formData.birthDate,
                     address: formattedAddress, // Use the formatted address
+                    region: formData.region, // Still include individual fields for backward compatibility
+                    city: formData.city,
+                    street: formData.street,
+                    house: formData.house,
+                    apartment: formData.apartment,
                     idCode: formData.idCode,
                     phone: formData.phone,
                     email: formData.email,
                     useUkrainianHeaders: true // Flag to ensure Ukrainian headers are used
                 };
                 
-                const googleScriptUrl = 'https://script.google.com/macros/s/AKfycbwGo59Bv3PRmqY_aZTKuQb3BFZoptlWjUCZej0IyBdujHLZ6PI4TI96XgiLsV2FbLwJYg/exec';
+                const googleScriptUrl = 'https://script.google.com/macros/s/AKfycbzEvdR5rz1Tt31RwWMxQiVxKUhRPAinSLbr9VNw8TVcw6-cWkpzL8qzdu8mkrDu-EyBBA/exec';
                 
                 // Use fetch API with POST request
                 const response = await fetch(googleScriptUrl, {

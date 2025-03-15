@@ -152,7 +152,7 @@ function formatAddress(data) {
 // Function to send data to Google Sheets using Apps Script
 async function sendToGoogleSheets(groupName, data) {
     // Use the latest script ID if not set in environment variables
-    const GOOGLE_APP_SCRIPT_ID = process.env.GOOGLE_APP_SCRIPT_ID || 'AKfycbwGo59Bv3PRmqY_aZTKuQb3BFZoptlWjUCZej0IyBdujHLZ6PI4TI96XgiLsV2FbLwJYg';
+    const GOOGLE_APP_SCRIPT_ID = process.env.GOOGLE_APP_SCRIPT_ID || 'AKfycbzEvdR5rz1Tt31RwWMxQiVxKUhRPAinSLbr9VNw8TVcw6-cWkpzL8qzdu8mkrDu-EyBBA';
     const GOOGLE_SHEETS_ID = process.env.GOOGLE_SHEETS_ID;
     
     try {
@@ -162,6 +162,9 @@ async function sendToGoogleSheets(groupName, data) {
         // Use fetch to call the Google Apps Script web app
         const appScriptUrl = `https://script.google.com/macros/s/${GOOGLE_APP_SCRIPT_ID}/exec`;
         
+        // Format the address
+        const address = formatAddress(data);
+        
         // Prepare the data for Google Apps Script
         const payload = {
             sheetId: GOOGLE_SHEETS_ID,
@@ -170,7 +173,12 @@ async function sendToGoogleSheets(groupName, data) {
             firstName: data.firstName,
             patronymic: data.patronymic,
             dob: data.birthDate,
-            address: formatAddress(data),
+            address: address, // Send the formatted address
+            region: data.region, // Still include individual fields for backward compatibility
+            city: data.city,
+            street: data.street,
+            house: data.house,
+            apartment: data.apartment,
             idCode: data.idCode,
             phone: data.phone,
             email: data.email,
