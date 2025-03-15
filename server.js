@@ -128,7 +128,7 @@ function formatAddress(data) {
 // Function to send data to Google Sheets using Apps Script
 async function sendToGoogleSheets(groupName, data) {
     // Use the latest script ID if not set in environment variables
-    const GOOGLE_APP_SCRIPT_ID = process.env.GOOGLE_APP_SCRIPT_ID || 'AKfycbxpds2mGvH21DP37rxttWQSXHO8LUWx-KTA7ktPhLRC3NC1nD1xTbq5eSDW7Ymx7ZII';
+    const GOOGLE_APP_SCRIPT_ID = process.env.GOOGLE_APP_SCRIPT_ID || 'AKfycby_AL4avRVsYxtgfessZKXR9tfsVmkah71gv9q0STMiA2Wu7MCBXS3JRLFsuqcHnfvI4g';
     const GOOGLE_SHEETS_ID = process.env.GOOGLE_SHEETS_ID;
     
     try {
@@ -273,7 +273,7 @@ async function ensureUkrainianHeadersInSheet(spreadsheetId, sheetName) {
                 },
                 body: JSON.stringify(requestBody)
             });
-            
+
             if (!createResponse.ok) {
                 console.error(`Failed to create sheet: ${createResponse.status}`);
                 return false;
@@ -390,7 +390,7 @@ async function ensureUkrainianHeadersInSheet(spreadsheetId, sheetName) {
             },
             body: JSON.stringify(requestBody)
         });
-        
+
         if (!updateResponse.ok) {
             console.error(`Failed to update headers: ${updateResponse.status}`);
             return false;
