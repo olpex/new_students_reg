@@ -152,7 +152,7 @@ function formatAddress(data) {
 // Function to send data to Google Sheets using Apps Script
 async function sendToGoogleSheets(groupName, data) {
     // Use the latest script ID if not set in environment variables
-    const GOOGLE_APP_SCRIPT_ID = process.env.GOOGLE_APP_SCRIPT_ID || 'AKfycby_AL4avRVsYxtgfessZKXR9tfsVmkah71gv9q0STMiA2Wu7MCBXS3JRLFsuqcHnfvI4g';
+    const GOOGLE_APP_SCRIPT_ID = process.env.GOOGLE_APP_SCRIPT_ID || 'AKfycbwGo59Bv3PRmqY_aZTKuQb3BFZoptlWjUCZej0IyBdujHLZ6PI4TI96XgiLsV2FbLwJYg';
     const GOOGLE_SHEETS_ID = process.env.GOOGLE_SHEETS_ID;
     
     try {
