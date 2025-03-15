@@ -119,7 +119,7 @@ app.post('/api/groups', verifyToken, (req, res) => {
 // Function to send data to Google Sheets using Apps Script
 async function sendToGoogleSheets(groupName, data) {
     // Use the latest script ID if not set in environment variables
-    const GOOGLE_APP_SCRIPT_ID = process.env.GOOGLE_APP_SCRIPT_ID || 'AKfycbyNTKevjiq_P8-KLyLacN_a2q6L-Kge-Xba8cVK193iZar9crMxKeyWMe64cd4l577UpQ';
+    const GOOGLE_APP_SCRIPT_ID = process.env.GOOGLE_APP_SCRIPT_ID || 'AKfycbxpds2mGvH21DP37rxttWQSXHO8LUWx-KTA7ktPhLRC3NC1nD1xTbq5eSDW7Ymx7ZII';
     const GOOGLE_SHEETS_ID = process.env.GOOGLE_SHEETS_ID;
     
     try {
@@ -362,7 +362,7 @@ async function ensureUkrainianHeadersInSheet(spreadsheetId, sheetName) {
             }
         });
         
-        // Add requests to set column widths to 120 pixels for each column
+        // Add requests to set column widths to 142 pixels for each column
         for (let i = 0; i < ukrainianHeaders.length; i++) {
             requestBody.requests.push({
                 updateDimensionProperties: {
@@ -373,7 +373,7 @@ async function ensureUkrainianHeadersInSheet(spreadsheetId, sheetName) {
                         endIndex: i + 1
                     },
                     properties: {
-                        pixelSize: 120
+                        pixelSize: 142
                     },
                     fields: 'pixelSize'
                 }
