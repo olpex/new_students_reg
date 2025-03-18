@@ -49,6 +49,107 @@ CREATE TABLE students (
 );
 ```
 
+## Налаштування таблиць в Supabase
+
+### Створення таблиці students
+
+1. Перейдіть на [dashboard.supabase.com](https://dashboard.supabase.com) і виберіть ваш проект
+2. Перейдіть до "SQL Editor" в лівому меню
+3. Створіть новий запит, натиснувши "New Query"
+4. Вставте наступний SQL-код:
+
+```sql
+-- Створення таблиці students, якщо вона не існує
+CREATE TABLE IF NOT EXISTS students (
+  id SERIAL PRIMARY KEY,
+  lastName TEXT NOT NULL,
+  firstName TEXT NOT NULL,
+  patronymic TEXT,
+  birthDate DATE NOT NULL,
+  region TEXT NOT NULL,
+  city TEXT NOT NULL,
+  street TEXT,
+  house TEXT,
+  apartment TEXT,
+  idCode TEXT NOT NULL,
+  phone TEXT NOT NULL,
+  email TEXT NOT NULL,
+  group_name TEXT NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Налаштування Row Level Security для таблиці students
+ALTER TABLE students ENABLE ROW LEVEL SECURITY;
+
+-- Створення політики для вставки даних (будь-хто може вставляти)
+CREATE POLICY students_insert_policy
+  ON students
+  FOR INSERT
+  TO authenticated, anon
+  WITH CHECK (true);
+
+-- Створення політики для читання даних (будь-хто може читати)
+CREATE POLICY students_select_policy
+  ON students
+  FOR SELECT
+  TO authenticated, anon
+  USING (true);
+
+-- Додавання індексу для швидкого пошуку по group_name
+CREATE INDEX IF NOT EXISTS students_group_name_idx ON students (group_name);
+
+-- Додавання індексу для швидкого пошуку по lastName
+CREATE INDEX IF NOT EXISTS students_lastname_idx ON students (lastName);
+```
+
+5. Натисніть "Run" для виконання запиту
+
+### Створення таблиці groups
+
+1. Створіть ще один новий запит в SQL Editor
+2. Вставте наступний SQL-код:
+
+```sql
+-- Створення таблиці groups, якщо вона не існує
+CREATE TABLE IF NOT EXISTS groups (
+  id SERIAL PRIMARY KEY,
+  name TEXT NOT NULL UNIQUE
+);
+
+-- Налаштування Row Level Security для таблиці groups
+ALTER TABLE groups ENABLE ROW LEVEL SECURITY;
+
+-- Створення політики для вставки даних в groups
+CREATE POLICY groups_insert_policy
+  ON groups
+  FOR INSERT
+  TO authenticated, anon
+  WITH CHECK (true);
+
+-- Створення політики для читання даних з groups
+CREATE POLICY groups_select_policy
+  ON groups
+  FOR SELECT
+  TO authenticated, anon
+  USING (true);
+
+-- Створення політики для видалення даних з groups
+CREATE POLICY groups_delete_policy
+  ON groups
+  FOR DELETE
+  TO authenticated, anon
+  USING (true);
+```
+
+3. Натисніть "Run" для виконання запиту
+
+### Перевірка налаштувань Row Level Security (RLS)
+
+1. Перейдіть до "Table Editor" в лівому меню
+2. Виберіть таблицю `students` або `groups`
+3. Натисніть на вкладку "Policies"
+4. Переконайтеся, що для таблиці увімкнено RLS і створено відповідні політики
+
 ## Step 3: Deploy to Vercel
 
 1. Import your Git repository into Vercel
@@ -119,3 +220,14 @@ npm start
 ```
 
 Your application should connect to Supabase and log "Supabase client initialized" if successful.
+
+## Додаткові налаштування
+
+Якщо у вас виникають проблеми з додаванням студентів до бази даних, виконайте наступні кроки:
+
+1. Перевірте, чи правильно налаштовані змінні середовища в Vercel:
+   - `SUPABASE_URL`
+   - `SUPABASE_KEY`
+   - `SUPABASE_SERVICE_ROLE_KEY`
+
+2. Перевірте логи сервера для виявлення помилок

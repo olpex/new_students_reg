@@ -323,6 +323,95 @@ app.get('/api/test/groups', verifyToken, async (req, res) => {
   }
 });
 
+// Test endpoint for checking Supabase student insertion
+app.get('/api/test/students', verifyToken, async (req, res) => {
+  try {
+    console.log('Testing Supabase student insertion');
+    
+    if (supabaseAdmin) {
+      console.log('Testing with supabaseAdmin client');
+      
+      // Generate test student data
+      const testStudent = {
+        lastName: 'Тестовий',
+        firstName: 'Студент',
+        patronymic: 'Тестович',
+        birthDate: '2000-01-01',
+        region: 'Київська',
+        city: 'Київ',
+        street: 'Тестова',
+        house: '1',
+        apartment: '1',
+        idCode: '1234567890',
+        phone: '+380991234567',
+        email: 'test@example.com',
+        group_name: 'Тестова група'
+      };
+      
+      console.log('Test student data:', testStudent);
+      
+      // First, try to create the test group if it doesn't exist
+      const { data: groupData, error: groupError } = await supabaseAdmin
+        .from('groups')
+        .upsert([{ name: testStudent.group_name }], { onConflict: 'name' })
+        .select();
+      
+      if (groupError) {
+        console.error('Error creating test group:', groupError);
+      } else {
+        console.log('Test group created or already exists:', groupData);
+      }
+      
+      // Now try to insert the test student
+      const { data, error } = await supabaseAdmin
+        .from('students')
+        .insert([testStudent])
+        .select();
+      
+      if (error) {
+        console.error('Error inserting test student:', error);
+        console.error('Error details:', error.message, error.details);
+        
+        // Try to get more information about the table
+        const { data: tableInfo, error: tableError } = await supabaseAdmin
+          .rpc('get_table_info', { table_name: 'students' });
+        
+        if (tableError) {
+          console.error('Error getting table info:', tableError);
+        } else {
+          console.log('Table info:', tableInfo);
+        }
+        
+        res.json({ 
+          success: false, 
+          message: 'Помилка при додаванні тестового студента', 
+          error: error.message,
+          details: error.details 
+        });
+      } else {
+        console.log('Test student inserted successfully:', data);
+        res.json({ 
+          success: true, 
+          message: 'Тестовий студент успішно доданий до бази даних', 
+          data 
+        });
+      }
+    } else {
+      res.json({ 
+        success: false, 
+        message: 'Supabase admin client not available' 
+      });
+    }
+  } catch (error) {
+    console.error('Error testing student insertion:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Помилка при тестуванні додавання студента',
+      error: error.toString() 
+    });
+  }
+});
+
 // Function to format address
 function formatAddress(data) {
   // Create an array of address parts
@@ -677,6 +766,58 @@ app.post('/api/students', async (req, res) => {
       console.log('Supabase Admin URL:', process.env.SUPABASE_URL);
       console.log('Supabase table name being used:', 'students');
       
+      // Check if students table exists and create it if it doesn't
+      try {
+        const { count, error: countError } = await supabaseAdmin
+          .from('students')
+          .select('*', { count: 'exact', head: true });
+        
+        if (countError) {
+          console.log('Error checking students table, attempting to create it:', countError);
+          
+          // Create the students table
+          const { error: createError } = await supabaseAdmin.rpc('create_students_table');
+          
+          if (createError) {
+            console.error('Error creating students table:', createError);
+            // Try direct SQL approach
+            const createTableSQL = `
+              CREATE TABLE IF NOT EXISTS students (
+                id SERIAL PRIMARY KEY,
+                lastName TEXT NOT NULL,
+                firstName TEXT NOT NULL,
+                patronymic TEXT,
+                birthDate DATE NOT NULL,
+                region TEXT NOT NULL,
+                city TEXT NOT NULL,
+                street TEXT,
+                house TEXT,
+                apartment TEXT,
+                idCode TEXT NOT NULL,
+                phone TEXT NOT NULL,
+                email TEXT NOT NULL,
+                group_name TEXT NOT NULL,
+                created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+              );
+            `;
+            
+            try {
+              await supabaseAdmin.rpc('exec_sql', { sql: createTableSQL });
+              console.log('Students table created successfully using exec_sql');
+            } catch (sqlError) {
+              console.error('Error executing SQL to create table:', sqlError);
+            }
+          } else {
+            console.log('Students table created successfully');
+          }
+        } else {
+          console.log('Students table exists, proceeding with insert');
+        }
+      } catch (tableCheckError) {
+        console.error('Error checking/creating students table:', tableCheckError);
+      }
+      
+      // Now try to insert the data
       const { data, error } = await supabaseAdmin
         .from('students')
         .insert([supabaseData])

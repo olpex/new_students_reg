@@ -159,6 +159,7 @@
                 <div class="mb-3">
                     <button id="testGroupsPermissions" class="btn btn-warning">Перевірити права доступу до груп</button>
                     <button id="testDeleteGroup" class="btn btn-danger">Тест видалення групи</button>
+                    <button id="testStudentInsert" class="btn btn-primary">Тест додавання студента</button>
                 </div>
                 <div id="testApiResult" class="alert alert-info" style="display: none;"></div>
             </div>
@@ -446,6 +447,7 @@
             // Test API buttons
             const testGroupsPermissionsBtn = document.getElementById('testGroupsPermissions');
             const testDeleteGroupBtn = document.getElementById('testDeleteGroup');
+            const testStudentInsertBtn = document.getElementById('testStudentInsert');
             const testApiResult = document.getElementById('testApiResult');
             
             if (testGroupsPermissionsBtn) {
@@ -522,6 +524,39 @@
                     })
                     .catch(error => {
                         console.error('Error in test delete flow:', error);
+                        showTestResult(`Помилка при тестуванні: ${error.message}`, 'danger');
+                    });
+                });
+            }
+            
+            if (testStudentInsertBtn) {
+                testStudentInsertBtn.addEventListener('click', function() {
+                    const token = localStorage.getItem('adminToken');
+                    if (!token) {
+                        showTestResult('Потрібно увійти як адміністратор', 'danger');
+                        return;
+                    }
+                    
+                    showTestResult('Перевірка можливості додавання студентів...', 'info');
+                    
+                    // Use the test endpoint for students
+                    fetch('/api/test/students', {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            showTestResult(`Тест успішний: ${data.message}`, 'success');
+                        } else {
+                            showTestResult(`Помилка: ${data.message}. ${data.error || ''}`, 'danger');
+                            console.error('Test student insertion error details:', data);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error testing student insertion:', error);
                         showTestResult(`Помилка при тестуванні: ${error.message}`, 'danger');
                     });
                 });
