@@ -182,7 +182,20 @@
                 const username = document.getElementById('username').value;
                 const password = document.getElementById('password').value;
                 
-                // Send API request for authentication
+                // Simple authentication for the deployed version
+                if (username === 'admin' && password === 'admin123') {
+                    localStorage.setItem('adminLoggedIn', 'true');
+                    // Set a dummy token for compatibility with our API code
+                    localStorage.setItem('adminToken', 'dummy-token-for-local-testing');
+                    loginForm.style.display = 'none';
+                    adminPanel.style.display = 'block';
+                    loadGroups();
+                } else {
+                    showMessage(loginMessage, 'Невірний логін або пароль', 'error');
+                }
+                
+                // Keep the API version commented out for now
+                /*
                 fetch('/api/auth/login', {
                     method: 'POST',
                     headers: {
@@ -206,6 +219,7 @@
                     console.error('Login error:', error);
                     showMessage(loginMessage, 'Помилка при вході в систему', 'error');
                 });
+                */
             });
 
             // Logout button
@@ -216,53 +230,37 @@
                 loginForm.style.display = 'block';
             });
 
-            // Group form submission
-            groupForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                const groupName = document.getElementById('group-name').value;
-                
-                if (!groupName) {
-                    showMessage(adminMessage, 'Введіть назву групи', 'error');
-                    return;
-                }
-                
-                // Get JWT token from localStorage
-                const token = localStorage.getItem('adminToken');
-                
-                if (!token) {
-                    showMessage(adminMessage, 'Необхідна авторизація', 'error');
-                    return;
-                }
-                
-                // Send API request to add group
-                fetch('/api/groups', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ name: groupName })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Reset form and reload groups
-                        document.getElementById('group-name').value = '';
-                        loadGroups();
-                        showMessage(adminMessage, data.message || 'Група успішно додана', 'success');
-                    } else {
-                        showMessage(adminMessage, data.message || 'Помилка при додаванні групи', 'error');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error adding group:', error);
-                    showMessage(adminMessage, 'Помилка при додаванні групи', 'error');
-                });
-            });
-
-            // Load groups from server
+            // Load groups from server or localStorage
             function loadGroups() {
+                // First try to load from localStorage for the deployed version
+                let groups = JSON.parse(localStorage.getItem('demoGroups') || '[]');
+                
+                groupsContainer.innerHTML = '';
+                
+                if (groups.length === 0) {
+                    groupsContainer.innerHTML = '<p>Немає доданих груп</p>';
+                }
+                
+                groups.forEach(group => {
+                    const groupItem = document.createElement('div');
+                    groupItem.className = 'group-item';
+                    groupItem.innerHTML = `
+                        <div><strong>${group.name}</strong></div>
+                        <button class="delete-btn" data-group="${group.name}">Видалити</button>
+                    `;
+                    groupsContainer.appendChild(groupItem);
+                });
+                
+                // Add event listeners for delete buttons
+                document.querySelectorAll('.delete-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const groupName = this.getAttribute('data-group');
+                        deleteGroup(groupName);
+                    });
+                });
+                
+                // Keep the API version commented out for now
+                /*
                 // Get JWT token from localStorage
                 const token = localStorage.getItem('adminToken');
                 
@@ -309,11 +307,88 @@
                     console.error('Error loading groups:', error);
                     showMessage(adminMessage, 'Помилка при завантаженні груп', 'error');
                 });
+                */
             }
+
+            // Group form submission
+            groupForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const groupName = document.getElementById('group-name').value;
+                
+                if (!groupName) {
+                    showMessage(adminMessage, 'Введіть назву групи', 'error');
+                    return;
+                }
+                
+                // For the deployed version, use localStorage
+                let groups = JSON.parse(localStorage.getItem('demoGroups') || '[]');
+                
+                // Check if group already exists
+                if (groups.some(group => group.name === groupName)) {
+                    showMessage(adminMessage, 'Група з такою назвою вже існує', 'error');
+                    return;
+                }
+                
+                // Add new group to localStorage
+                groups.push({ name: groupName });
+                localStorage.setItem('demoGroups', JSON.stringify(groups));
+                
+                // Reset form and reload groups
+                document.getElementById('group-name').value = '';
+                loadGroups();
+                
+                showMessage(adminMessage, 'Група успішно додана', 'success');
+                
+                // Keep the API version commented out for now
+                /*
+                // Get JWT token from localStorage
+                const token = localStorage.getItem('adminToken');
+                
+                if (!token) {
+                    showMessage(adminMessage, 'Необхідна авторизація', 'error');
+                    return;
+                }
+                
+                // Send API request to add group
+                fetch('/api/groups', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ name: groupName })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Reset form and reload groups
+                        document.getElementById('group-name').value = '';
+                        loadGroups();
+                        showMessage(adminMessage, data.message || 'Група успішно додана', 'success');
+                    } else {
+                        showMessage(adminMessage, data.message || 'Помилка при додаванні групи', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error adding group:', error);
+                    showMessage(adminMessage, 'Помилка при додаванні групи', 'error');
+                });
+                */
+            });
 
             // Delete a group
             function deleteGroup(groupName) {
                 if (confirm(`Ви впевнені, що хочете видалити групу ${groupName}?`)) {
+                    // For the deployed version, use localStorage
+                    let groups = JSON.parse(localStorage.getItem('demoGroups') || '[]');
+                    groups = groups.filter(group => group.name !== groupName);
+                    localStorage.setItem('demoGroups', JSON.stringify(groups));
+                    loadGroups();
+                    showMessage(adminMessage, 'Група успішно видалена', 'success');
+                    
+                    // Keep the API version commented out for now
+                    /*
                     // Get JWT token from localStorage
                     const token = localStorage.getItem('adminToken');
                     
@@ -342,6 +417,7 @@
                         console.error('Error deleting group:', error);
                         showMessage(adminMessage, 'Помилка при видаленні групи', 'error');
                     });
+                    */
                 }
             }
 
