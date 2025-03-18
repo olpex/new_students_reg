@@ -110,7 +110,11 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Try to submit to the Node.js server first
             try {
-                const response = await fetch('/api/students', {
+                const apiUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+                    ? '/api/students' 
+                    : 'https://newuser-rose.vercel.app/api/students';
+                
+                const response = await fetch(apiUrl, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -150,7 +154,15 @@ document.addEventListener('DOMContentLoaded', () => {
             // Try to load groups from the Node.js server first
             try {
                 console.log('Loading groups from API...');
-                const response = await fetch('/api/groups/public');
+                
+                // Use absolute URL for Vercel deployment, relative URL for local development
+                const apiUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+                    ? '/api/groups/public' 
+                    : 'https://newuser-rose.vercel.app/api/groups/public';
+                
+                console.log('Fetching groups from:', apiUrl);
+                
+                const response = await fetch(apiUrl);
                 
                 if (response.ok) {
                     const groups = await response.json();
@@ -170,22 +182,33 @@ document.addEventListener('DOMContentLoaded', () => {
                         groupSelect.appendChild(option);
                     });
                     return;
+                } else {
+                    console.error('Failed to fetch groups:', response.status, response.statusText);
+                    // Try fallback to hardcoded groups if API fails
+                    loadHardcodedGroups();
                 }
             } catch (fetchError) {
-                console.log('API fetch failed, using localStorage for groups:', fetchError);
+                console.log('API fetch failed, trying fallback methods:', fetchError);
+                // Try fallback to hardcoded groups if API fails
+                loadHardcodedGroups();
             }
-            
-            // Fallback for Live Server: load from localStorage
-            console.log('Loading groups from localStorage...');
-            const localGroups = JSON.parse(localStorage.getItem('demoGroups') || '[]');
+        } catch (error) {
+            console.error('Error loading groups:', error);
+            showMessage('Помилка завантаження груп. Перевірте підключення до сервера.', 'error');
+        }
+    }
+    
+    // Fallback function to load hardcoded groups if API fails
+    function loadHardcodedGroups() {
+        console.log('Loading hardcoded groups as fallback...');
+        
+        // Try to load from localStorage first
+        const localGroups = JSON.parse(localStorage.getItem('demoGroups') || '[]');
+        
+        if (localGroups.length > 0) {
             console.log('Available groups from localStorage:', localGroups);
             
             groupSelect.innerHTML = '<option value="">Виберіть групу</option>';
-            
-            if (localGroups.length === 0) {
-                showMessage('Немає доступних груп. Зверніться до адміністратора.', 'error');
-                return;
-            }
             
             localGroups.forEach(group => {
                 const option = document.createElement('option');
@@ -193,11 +216,31 @@ document.addEventListener('DOMContentLoaded', () => {
                 option.textContent = group.name;
                 groupSelect.appendChild(option);
             });
-            
-        } catch (error) {
-            console.error('Error loading groups:', error);
-            showMessage('Помилка завантаження груп. Перевірте підключення до сервера.', 'error');
+            return;
         }
+        
+        // If no groups in localStorage, use hardcoded list
+        const hardcodedGroups = [
+            { name: "Група 1" },
+            { name: "Група 2" },
+            { name: "Група 3" },
+            { name: "Група 4" },
+            { name: "Група 5" }
+        ];
+        
+        console.log('Using hardcoded groups:', hardcodedGroups);
+        
+        groupSelect.innerHTML = '<option value="">Виберіть групу</option>';
+        
+        hardcodedGroups.forEach(group => {
+            const option = document.createElement('option');
+            option.value = group.name;
+            option.textContent = group.name;
+            groupSelect.appendChild(option);
+        });
+        
+        // Save hardcoded groups to localStorage for future use
+        localStorage.setItem('demoGroups', JSON.stringify(hardcodedGroups));
     }
 
     // Form validation

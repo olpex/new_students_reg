@@ -11,7 +11,12 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 // Middleware
-app.use(cors());
+// Configure CORS to allow requests from Vercel domain
+app.use(cors({
+  origin: ['http://localhost:3001', 'https://newuser-rose.vercel.app'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true
+}));
 app.use(bodyParser.json());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -108,6 +113,15 @@ app.get('/api/groups/public', async (req, res) => {
   try {
     const groups = await Group.find({});
     const publicGroups = groups.map(group => ({ name: group.name }));
+    
+    // Add CORS headers specifically for this endpoint
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET');
+    res.header('Access-Control-Allow-Headers', 'Content-Type');
+    
+    // Log the groups being sent
+    console.log('Sending public groups:', publicGroups);
+    
     res.json(publicGroups);
   } catch (error) {
     console.error('Error fetching groups:', error);
