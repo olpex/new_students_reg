@@ -171,20 +171,26 @@ app.delete('/api/groups/:name', verifyToken, async (req, res) => {
   try {
     // Try Supabase first
     if (supabase) {
+      console.log(`Attempting to delete group '${groupName}' from Supabase`);
+      
       const { error } = await supabase
         .from('groups')
         .delete()
         .eq('name', groupName);
       
       if (!error) {
+        console.log(`Successfully deleted group '${groupName}' from Supabase`);
         return res.json({ success: true, message: 'Групу видалено' });
       } else {
         console.error('Supabase delete error, falling back to MongoDB:', error);
+        console.error('Supabase delete error details:', error.message, error.details);
       }
     }
     
     // Fallback to MongoDB
+    console.log(`Falling back to MongoDB to delete group '${groupName}'`);
     await Group.deleteOne({ name: groupName });
+    console.log(`Successfully deleted group '${groupName}' from MongoDB`);
     res.json({ success: true, message: 'Групу видалено' });
   } catch (error) {
     console.error('Error deleting group:', error);
@@ -208,6 +214,7 @@ app.post('/api/groups', verifyToken, async (req, res) => {
       
       if (fetchError) {
         console.error('Error checking if group exists in Supabase:', fetchError);
+        console.error('Supabase error details:', fetchError.message, fetchError.details);
       }
       
       if (!fetchError && existingGroups && existingGroups.length > 0) {
@@ -225,6 +232,7 @@ app.post('/api/groups', verifyToken, async (req, res) => {
         return res.status(201).json({ success: true, message: 'Групу додано', data });
       } else {
         console.error('Supabase insert error, falling back to MongoDB:', insertError);
+        console.error('Supabase insert error details:', insertError.message, insertError.details);
       }
     } else {
       console.error('Supabase admin client not available');
@@ -642,21 +650,41 @@ app.listen(PORT, async () => {
   // Check if students table exists in Supabase
   if (supabaseAdmin) {
     try {
-      const { data, error } = await supabaseAdmin
+      console.log('Checking Supabase tables...');
+      
+      // Check students table
+      const { data: studentsData, error: studentsError } = await supabaseAdmin
         .from('students')
         .select('*')
         .limit(1);
       
-      if (error) {
-        console.error('Error checking students table:', error);
+      if (studentsError) {
+        console.error('Error checking students table:', studentsError);
         console.error('This may indicate that the students table does not exist or has incorrect permissions');
         console.error('Please create the students table in Supabase with the correct structure');
       } else {
         console.log('Successfully connected to students table in Supabase');
         console.log('Table structure seems to be correct');
       }
+      
+      // Check groups table
+      const { data: groupsData, error: groupsError } = await supabaseAdmin
+        .from('groups')
+        .select('*')
+        .limit(1);
+      
+      if (groupsError) {
+        console.error('Error checking groups table:', groupsError);
+        console.error('This may indicate that the groups table does not exist or has incorrect permissions');
+        console.error('Please create the groups table in Supabase with the correct structure');
+        console.error('SQL to create groups table: CREATE TABLE groups (id SERIAL PRIMARY KEY, name TEXT NOT NULL UNIQUE);');
+      } else {
+        console.log('Successfully connected to groups table in Supabase');
+        console.log('Groups table structure seems to be correct');
+        console.log('Groups in the table:', groupsData);
+      }
     } catch (error) {
-      console.error('Exception when checking students table:', error);
+      console.error('Exception when checking Supabase tables:', error);
     }
   }
 });
