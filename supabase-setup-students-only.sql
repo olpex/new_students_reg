@@ -1,6 +1,6 @@
--- Supabase SQL Setup Script
+-- Налаштування лише таблиці students без змін у таблиці groups
 
--- Create students table
+-- Створення таблиці students, якщо вона не існує
 CREATE TABLE IF NOT EXISTS students (
   id SERIAL PRIMARY KEY,
   lastName TEXT NOT NULL,
@@ -19,26 +19,29 @@ CREATE TABLE IF NOT EXISTS students (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Enable Row Level Security (RLS)
+-- Налаштування Row Level Security для таблиці students
 ALTER TABLE students ENABLE ROW LEVEL SECURITY;
 
--- Drop existing policies for students table (if they exist)
+-- Видалення існуючих політик для таблиці students (якщо вони є)
 DROP POLICY IF EXISTS students_insert_policy ON students;
 DROP POLICY IF EXISTS students_select_policy ON students;
 
--- Create policies for students table
+-- Створення політики для вставки даних (будь-хто може вставляти)
 CREATE POLICY students_insert_policy
   ON students
   FOR INSERT
   TO authenticated, anon
   WITH CHECK (true);
 
+-- Створення політики для читання даних (будь-хто може читати)
 CREATE POLICY students_select_policy
   ON students
   FOR SELECT
   TO authenticated, anon
   USING (true);
 
--- Create indexes for faster search
+-- Додавання індексу для швидкого пошуку по group_name
 CREATE INDEX IF NOT EXISTS students_group_name_idx ON students (group_name);
+
+-- Додавання індексу для швидкого пошуку по lastName
 CREATE INDEX IF NOT EXISTS students_lastname_idx ON students (lastName);
