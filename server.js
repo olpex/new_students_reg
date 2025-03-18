@@ -6,6 +6,7 @@ const path = require('path');
 const { google } = require('googleapis');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const supabase = require('./supabase');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -22,17 +23,19 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// MongoDB Connection
-mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-}).then(() => {
-  console.log('Connected to MongoDB');
-}).catch(err => {
-  console.error('MongoDB connection error:', err);
-});
+// MongoDB Connection (as fallback)
+if (process.env.MONGODB_URI) {
+  mongoose.connect(process.env.MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  }).then(() => {
+    console.log('Connected to MongoDB as fallback');
+  }).catch(err => {
+    console.error('MongoDB connection error:', err);
+  });
+}
 
-// Group Schema
+// Group Schema (for MongoDB fallback)
 const groupSchema = new mongoose.Schema({
   name: { type: String, required: true, unique: true }
 });
@@ -100,6 +103,20 @@ app.post('/api/auth/login', (req, res) => {
 // API endpoint to get all groups
 app.get('/api/groups', verifyToken, async (req, res) => {
   try {
+    // Try Supabase first
+    if (supabase) {
+      const { data: supabaseGroups, error } = await supabase
+        .from('groups')
+        .select('*');
+      
+      if (!error && supabaseGroups) {
+        return res.json(supabaseGroups);
+      } else {
+        console.error('Supabase error, falling back to MongoDB:', error);
+      }
+    }
+    
+    // Fallback to MongoDB
     const groups = await Group.find({});
     res.json(groups);
   } catch (error) {
@@ -111,8 +128,27 @@ app.get('/api/groups', verifyToken, async (req, res) => {
 // Public endpoint for groups (only names, no sheetsId)
 app.get('/api/groups/public', async (req, res) => {
   try {
-    const groups = await Group.find({});
-    const publicGroups = groups.map(group => ({ name: group.name }));
+    let groups = [];
+    
+    // Try Supabase first
+    if (supabase) {
+      const { data: supabaseGroups, error } = await supabase
+        .from('groups')
+        .select('name');
+      
+      if (!error && supabaseGroups) {
+        groups = supabaseGroups;
+      } else {
+        console.error('Supabase error, falling back to MongoDB:', error);
+        // Fallback to MongoDB
+        const mongoGroups = await Group.find({});
+        groups = mongoGroups.map(group => ({ name: group.name }));
+      }
+    } else {
+      // Fallback to MongoDB
+      const mongoGroups = await Group.find({});
+      groups = mongoGroups.map(group => ({ name: group.name }));
+    }
     
     // Add CORS headers specifically for this endpoint
     res.header('Access-Control-Allow-Origin', '*');
@@ -120,9 +156,9 @@ app.get('/api/groups/public', async (req, res) => {
     res.header('Access-Control-Allow-Headers', 'Content-Type');
     
     // Log the groups being sent
-    console.log('Sending public groups:', publicGroups);
+    console.log('Sending public groups:', groups);
     
-    res.json(publicGroups);
+    res.json(groups);
   } catch (error) {
     console.error('Error fetching groups:', error);
     res.status(500).json({ error: 'Failed to retrieve groups' });
@@ -133,6 +169,21 @@ app.get('/api/groups/public', async (req, res) => {
 app.delete('/api/groups/:name', verifyToken, async (req, res) => {
   const groupName = decodeURIComponent(req.params.name);
   try {
+    // Try Supabase first
+    if (supabase) {
+      const { error } = await supabase
+        .from('groups')
+        .delete()
+        .eq('name', groupName);
+      
+      if (!error) {
+        return res.json({ success: true, message: 'Групу видалено' });
+      } else {
+        console.error('Supabase delete error, falling back to MongoDB:', error);
+      }
+    }
+    
+    // Fallback to MongoDB
     await Group.deleteOne({ name: groupName });
     res.json({ success: true, message: 'Групу видалено' });
   } catch (error) {
@@ -145,8 +196,32 @@ app.delete('/api/groups/:name', verifyToken, async (req, res) => {
 app.post('/api/groups', verifyToken, async (req, res) => {
   const { name } = req.body;
 
-  // Check if group already exists
   try {
+    // Try Supabase first
+    if (supabase) {
+      // Check if group already exists
+      const { data: existingGroups, error: fetchError } = await supabase
+        .from('groups')
+        .select('name')
+        .eq('name', name);
+      
+      if (!fetchError && existingGroups && existingGroups.length > 0) {
+        return res.status(400).json({ success: false, message: 'Група з таким номером вже існує' });
+      }
+      
+      // Add new group
+      const { error: insertError } = await supabase
+        .from('groups')
+        .insert([{ name }]);
+      
+      if (!insertError) {
+        return res.status(201).json({ success: true, message: 'Групу додано' });
+      } else {
+        console.error('Supabase insert error, falling back to MongoDB:', insertError);
+      }
+    }
+    
+    // Fallback to MongoDB
     const existingGroup = await Group.findOne({ name });
     if (existingGroup) {
       return res.status(400).json({ success: false, message: 'Група з таким номером вже існує' });
@@ -487,7 +562,27 @@ app.post('/api/students', async (req, res) => {
   
   // Find the group
   try {
-    const groupData = await Group.findOne({ name: group });
+    let groupData;
+    
+    // Try Supabase first
+    if (supabase) {
+      const { data: supabaseGroups, error } = await supabase
+        .from('groups')
+        .select('name')
+        .eq('name', group);
+      
+      if (!error && supabaseGroups && supabaseGroups.length > 0) {
+        groupData = supabaseGroups[0];
+      } else {
+        console.error('Supabase error, falling back to MongoDB:', error);
+        // Fallback to MongoDB
+        groupData = await Group.findOne({ name: group });
+      }
+    } else {
+      // Fallback to MongoDB
+      groupData = await Group.findOne({ name: group });
+    }
+    
     if (!groupData) {
       console.log('Group not found:', group);
       return res.status(404).json({ success: false, message: 'Групу не знайдено' });

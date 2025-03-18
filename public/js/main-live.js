@@ -1,8 +1,22 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     const registrationForm = document.getElementById('registration-form');
     const formMessage = document.getElementById('formMessage');
     const groupSelect = document.getElementById('group');
     const phoneInput = document.getElementById('phone');
+
+    // Initialize Supabase client
+    let supabase = null;
+    try {
+        // Try to initialize Supabase client (will work on Vercel with environment variables)
+        const { createClient } = supabaseClient;
+        supabase = createClient(
+            window.SUPABASE_URL || 'https://your-project-id.supabase.co',
+            window.SUPABASE_KEY || 'your-supabase-anon-key'
+        );
+        console.log('Supabase client initialized');
+    } catch (error) {
+        console.error('Failed to initialize Supabase client:', error);
+    }
 
     // Set initial phone input value with +380 prefix
     phoneInput.value = '+380';
@@ -108,7 +122,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error('Error sending to Google Sheets:', googleError);
             }
             
-            // Try to submit to the Node.js server first
+            // Try to submit directly to Supabase if available
+            if (supabase) {
+                try {
+                    console.log('Attempting to save data to Supabase...');
+                    const { data, error } = await supabase
+                        .from('students')
+                        .insert([formData]);
+                    
+                    if (error) {
+                        console.error('Supabase insert error:', error);
+                        throw error;
+                    }
+                    
+                    console.log('Data saved to Supabase:', data);
+                    showMessage('Дані успішно відправлено!', 'success');
+                    registrationForm.reset();
+                    phoneInput.value = '+380';
+                    return;
+                } catch (supabaseError) {
+                    console.error('Error saving to Supabase:', supabaseError);
+                }
+            }
+            
+            // Try to submit to the Node.js server as fallback
             try {
                 const apiUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
                     ? '/api/students' 
@@ -151,7 +188,35 @@ document.addEventListener('DOMContentLoaded', () => {
     // Load available groups
     async function loadGroups() {
         try {
-            // Try to load groups from the Node.js server first
+            // Try to load groups directly from Supabase if available
+            if (supabase) {
+                try {
+                    console.log('Loading groups from Supabase...');
+                    const { data: groups, error } = await supabase
+                        .from('groups')
+                        .select('name');
+                    
+                    if (!error && groups && groups.length > 0) {
+                        console.log('Available groups from Supabase:', groups);
+                        
+                        groupSelect.innerHTML = '<option value="">Виберіть групу</option>';
+                        
+                        groups.forEach(group => {
+                            const option = document.createElement('option');
+                            option.value = group.name;
+                            option.textContent = group.name;
+                            groupSelect.appendChild(option);
+                        });
+                        return;
+                    } else {
+                        console.error('Supabase groups fetch error:', error);
+                    }
+                } catch (supabaseError) {
+                    console.error('Error loading groups from Supabase:', supabaseError);
+                }
+            }
+            
+            // Try to load groups from the Node.js server as fallback
             try {
                 console.log('Loading groups from API...');
                 

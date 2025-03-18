@@ -6,6 +6,7 @@
     "start": "node server.js"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.49.1",
     "body-parser": "^1.20.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
@@ -16,7 +17,6 @@
     "path": "^0.12.7"
   },
   "description": "Система реєстрації слухачів на навчання з адміністративною панеллю для управління групами.",
-  "devDependencies": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/olpex/new_students_reg.git"
