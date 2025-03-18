@@ -576,21 +576,21 @@ app.post('/api/students', async (req, res) => {
     if (supabaseAdmin) {
       console.log('Attempting to save student data to Supabase with admin privileges');
       
-      // Convert camelCase to snake_case for Supabase
+      // Convert camelCase to match Supabase table structure
       const supabaseData = {
-        firstname: studentData.firstName,
-        lastname: studentData.lastName,
+        lastName: studentData.lastName,
+        firstName: studentData.firstName,
         patronymic: studentData.patronymic,
-        birth_date: studentData.birthDate,
+        birthDate: studentData.birthDate,
         region: studentData.region,
         city: studentData.city,
         street: studentData.street,
         house: studentData.house,
         apartment: studentData.apartment,
-        id_code: studentData.idCode,
+        idCode: studentData.idCode,
         phone: studentData.phone,
         email: studentData.email,
-        group_name: group
+        group: group
       };
       
       console.log('Formatted data for Supabase:', supabaseData);
