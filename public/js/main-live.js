@@ -184,63 +184,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     return;
                 } else {
                     console.error('Failed to fetch groups:', response.status, response.statusText);
-                    // Try fallback to hardcoded groups if API fails
-                    loadHardcodedGroups();
+                    // Показуємо повідомлення про помилку замість резервних груп
+                    showMessage('Немає доступних груп. Зверніться до адміністратора.', 'error');
                 }
             } catch (fetchError) {
-                console.log('API fetch failed, trying fallback methods:', fetchError);
-                // Try fallback to hardcoded groups if API fails
-                loadHardcodedGroups();
+                console.log('API fetch failed:', fetchError);
+                // Показуємо повідомлення про помилку замість резервних груп
+                showMessage('Немає доступних груп. Зверніться до адміністратора.', 'error');
             }
         } catch (error) {
             console.error('Error loading groups:', error);
             showMessage('Помилка завантаження груп. Перевірте підключення до сервера.', 'error');
         }
-    }
-    
-    // Fallback function to load hardcoded groups if API fails
-    function loadHardcodedGroups() {
-        console.log('Loading hardcoded groups as fallback...');
-        
-        // Try to load from localStorage first
-        const localGroups = JSON.parse(localStorage.getItem('demoGroups') || '[]');
-        
-        if (localGroups.length > 0) {
-            console.log('Available groups from localStorage:', localGroups);
-            
-            groupSelect.innerHTML = '<option value="">Виберіть групу</option>';
-            
-            localGroups.forEach(group => {
-                const option = document.createElement('option');
-                option.value = group.name;
-                option.textContent = group.name;
-                groupSelect.appendChild(option);
-            });
-            return;
-        }
-        
-        // If no groups in localStorage, use hardcoded list
-        const hardcodedGroups = [
-            { name: "Група 1" },
-            { name: "Група 2" },
-            { name: "Група 3" },
-            { name: "Група 4" },
-            { name: "Група 5" }
-        ];
-        
-        console.log('Using hardcoded groups:', hardcodedGroups);
-        
-        groupSelect.innerHTML = '<option value="">Виберіть групу</option>';
-        
-        hardcodedGroups.forEach(group => {
-            const option = document.createElement('option');
-            option.value = group.name;
-            option.textContent = group.name;
-            groupSelect.appendChild(option);
-        });
-        
-        // Save hardcoded groups to localStorage for future use
-        localStorage.setItem('demoGroups', JSON.stringify(hardcodedGroups));
     }
 
     // Form validation
