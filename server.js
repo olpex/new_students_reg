@@ -575,12 +575,29 @@ app.post('/api/students', async (req, res) => {
     // Try to insert into Supabase first using admin client for higher privileges
     if (supabaseAdmin) {
       console.log('Attempting to save student data to Supabase with admin privileges');
+      
+      // Convert camelCase to snake_case for Supabase
+      const supabaseData = {
+        firstname: studentData.firstName,
+        lastname: studentData.lastName,
+        patronymic: studentData.patronymic,
+        birth_date: studentData.birthDate,
+        region: studentData.region,
+        city: studentData.city,
+        street: studentData.street,
+        house: studentData.house,
+        apartment: studentData.apartment,
+        id_code: studentData.idCode,
+        phone: studentData.phone,
+        email: studentData.email,
+        group_name: group
+      };
+      
+      console.log('Formatted data for Supabase:', supabaseData);
+      
       const { data, error } = await supabaseAdmin
         .from('students')
-        .insert([{ 
-          ...studentData,
-          group_name: group // Use group_name instead of group for Supabase
-        }])
+        .insert([supabaseData])
         .select();
       
       if (!error) {
