@@ -95,16 +95,19 @@
     }
   };
   
-  // Try to load Supabase URL and key from environment variables
-  // This will be set by Vercel using the environment variables
+  // Set default Supabase URL and key with your actual credentials
+  window.SUPABASE_URL = 'https://yxzcwkqtzmrrdvkuiyan.supabase.co';
+  window.SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl4emN3a3F0em1ycmR2a3VpeWFuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIzMDgwMDAsImV4cCI6MjA1Nzg4NDAwMH0.90tTXd4jh8Wc9ssXKcCvzLZ_OH_tab0lIYEIMcciOL8';
+  
+  // Still try to load from server in case there are updated values
   fetch('/api/supabase-config')
     .then(response => response.json())
     .then(config => {
-      window.SUPABASE_URL = config.url;
-      window.SUPABASE_KEY = config.key;
+      window.SUPABASE_URL = config.url || window.SUPABASE_URL;
+      window.SUPABASE_KEY = config.key || window.SUPABASE_KEY;
       console.log('Supabase configuration loaded from server');
     })
     .catch(error => {
-      console.warn('Failed to load Supabase configuration from server:', error);
+      console.warn('Failed to load Supabase configuration from server, using default values:', error);
     });
 })();
