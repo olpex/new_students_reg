@@ -169,9 +169,24 @@ app.get('/api/groups/public', async (req, res) => {
 app.delete('/api/groups/:name', verifyToken, async (req, res) => {
   const groupName = decodeURIComponent(req.params.name);
   try {
-    // Try Supabase first
-    if (supabase) {
-      console.log(`Attempting to delete group '${groupName}' from Supabase`);
+    // Try Supabase first with admin privileges
+    if (supabaseAdmin) {
+      console.log(`Attempting to delete group '${groupName}' from Supabase using admin privileges`);
+      
+      const { error } = await supabaseAdmin
+        .from('groups')
+        .delete()
+        .eq('name', groupName);
+      
+      if (!error) {
+        console.log(`Successfully deleted group '${groupName}' from Supabase`);
+        return res.json({ success: true, message: 'Групу видалено' });
+      } else {
+        console.error('Supabase delete error, falling back to MongoDB:', error);
+        console.error('Supabase delete error details:', error.message, error.details);
+      }
+    } else if (supabase) {
+      console.log(`Attempting to delete group '${groupName}' from Supabase with regular client`);
       
       const { error } = await supabase
         .from('groups')
@@ -250,6 +265,61 @@ app.post('/api/groups', verifyToken, async (req, res) => {
   } catch (error) {
     console.error('Error adding group:', error);
     res.status(500).json({ error: 'Failed to add group' });
+  }
+});
+
+// Test endpoint for checking Supabase permissions
+app.get('/api/test/groups', verifyToken, async (req, res) => {
+  try {
+    console.log('Testing Supabase permissions for groups table');
+    
+    // Check if we can read groups
+    if (supabaseAdmin) {
+      console.log('Testing with supabaseAdmin client');
+      const { data: readData, error: readError } = await supabaseAdmin
+        .from('groups')
+        .select('*')
+        .limit(10);
+      
+      if (readError) {
+        console.error('Error reading groups with admin client:', readError);
+      } else {
+        console.log('Successfully read groups with admin client:', readData);
+      }
+      
+      // Test inserting a test group
+      const testGroupName = `test-group-${Date.now()}`;
+      console.log(`Testing insert with admin client: ${testGroupName}`);
+      
+      const { data: insertData, error: insertError } = await supabaseAdmin
+        .from('groups')
+        .insert([{ name: testGroupName }])
+        .select();
+      
+      if (insertError) {
+        console.error('Error inserting test group with admin client:', insertError);
+      } else {
+        console.log('Successfully inserted test group with admin client:', insertData);
+        
+        // Test deleting the test group
+        console.log(`Testing delete with admin client: ${testGroupName}`);
+        const { error: deleteError } = await supabaseAdmin
+          .from('groups')
+          .delete()
+          .eq('name', testGroupName);
+        
+        if (deleteError) {
+          console.error('Error deleting test group with admin client:', deleteError);
+        } else {
+          console.log('Successfully deleted test group with admin client');
+        }
+      }
+    }
+    
+    res.json({ success: true, message: 'Permissions test completed, check server logs for details' });
+  } catch (error) {
+    console.error('Error testing Supabase permissions:', error);
+    res.status(500).json({ success: false, message: 'Error testing permissions' });
   }
 });
 

@@ -152,6 +152,16 @@
                 <h3>Список груп</h3>
                 <div id="groups-container"></div>
             </div>
+            
+            <!-- Test API Controls -->
+            <div class="mt-4 p-3 border rounded">
+                <h4>Тестування API</h4>
+                <div class="mb-3">
+                    <button id="testGroupsPermissions" class="btn btn-warning">Перевірити права доступу до груп</button>
+                    <button id="testDeleteGroup" class="btn btn-danger">Тест видалення групи</button>
+                </div>
+                <div id="testApiResult" class="alert alert-info" style="display: none;"></div>
+            </div>
         </div>
     </div>
 
@@ -373,6 +383,9 @@
                     const token = localStorage.getItem('adminToken');
                     
                     if (token) {
+                        // Show loading message
+                        showMessage(adminMessage, 'Видалення групи...', 'info');
+                        
                         // Send API request to delete group
                         fetch(`/api/groups/${encodeURIComponent(groupName)}`, {
                             method: 'DELETE',
@@ -380,18 +393,27 @@
                                 'Authorization': `Bearer ${token}`
                             }
                         })
-                        .then(response => response.json())
+                        .then(response => {
+                            console.log('Delete group response status:', response.status);
+                            return response.json().catch(e => {
+                                console.error('Error parsing JSON response:', e);
+                                return { success: false, message: 'Помилка при обробці відповіді сервера' };
+                            });
+                        })
                         .then(data => {
+                            console.log('Delete group response data:', data);
                             if (data.success) {
                                 loadGroups();
                                 showMessage(adminMessage, data.message || 'Група успішно видалена', 'success');
                             } else {
                                 showMessage(adminMessage, data.message || 'Помилка при видаленні групи', 'error');
+                                console.error('Server error when deleting group:', data);
                             }
                         })
                         .catch(error => {
                             console.error('Error deleting group via API:', error);
                             // Fall back to localStorage if API fails
+                            showMessage(adminMessage, 'Помилка при з\'єднанні з сервером. Використовуємо локальне сховище.', 'warning');
                             deleteGroupFromLocalStorage(groupName);
                         });
                     } else {
@@ -419,6 +441,97 @@
                 setTimeout(() => {
                     element.style.display = 'none';
                 }, 3000);
+            }
+
+            // Test API buttons
+            const testGroupsPermissionsBtn = document.getElementById('testGroupsPermissions');
+            const testDeleteGroupBtn = document.getElementById('testDeleteGroup');
+            const testApiResult = document.getElementById('testApiResult');
+            
+            if (testGroupsPermissionsBtn) {
+                testGroupsPermissionsBtn.addEventListener('click', function() {
+                    const token = localStorage.getItem('adminToken');
+                    if (!token) {
+                        showTestResult('Потрібно увійти як адміністратор', 'danger');
+                        return;
+                    }
+                    
+                    showTestResult('Перевірка прав доступу...', 'info');
+                    
+                    fetch('/api/test/groups', {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        showTestResult(`Результат: ${data.message}. Перевірте логи сервера для деталей.`, 'success');
+                    })
+                    .catch(error => {
+                        console.error('Error testing permissions:', error);
+                        showTestResult('Помилка при перевірці прав доступу', 'danger');
+                    });
+                });
+            }
+            
+            if (testDeleteGroupBtn) {
+                testDeleteGroupBtn.addEventListener('click', function() {
+                    const token = localStorage.getItem('adminToken');
+                    if (!token) {
+                        showTestResult('Потрібно увійти як адміністратор', 'danger');
+                        return;
+                    }
+                    
+                    const testGroupName = `test-group-${Date.now()}`;
+                    showTestResult(`Створення тестової групи: ${testGroupName}...`, 'info');
+                    
+                    // First create a test group
+                    fetch('/api/groups', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({ name: testGroupName })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            showTestResult(`Група створена. Спроба видалення: ${testGroupName}...`, 'info');
+                            
+                            // Now try to delete it
+                            return fetch(`/api/groups/${encodeURIComponent(testGroupName)}`, {
+                                method: 'DELETE',
+                                headers: {
+                                    'Authorization': `Bearer ${token}`
+                                }
+                            });
+                        } else {
+                            throw new Error('Failed to create test group');
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            showTestResult(`Тест пройдено успішно! Група ${testGroupName} була створена і видалена.`, 'success');
+                            loadGroups(); // Refresh the groups list
+                        } else {
+                            showTestResult(`Помилка при видаленні групи: ${data.message}`, 'danger');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error in test delete flow:', error);
+                        showTestResult(`Помилка при тестуванні: ${error.message}`, 'danger');
+                    });
+                });
+            }
+            
+            // Helper function to show test results
+            function showTestResult(message, type) {
+                testApiResult.textContent = message;
+                testApiResult.className = `alert alert-${type}`;
+                testApiResult.style.display = 'block';
             }
         });
     </script>
