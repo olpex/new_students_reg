@@ -6,7 +6,7 @@ const path = require('path');
 const { google } = require('googleapis');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const supabase = require('./supabase');
+const { supabase, supabaseAdmin } = require('./supabase');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
