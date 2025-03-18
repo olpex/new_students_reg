@@ -590,10 +590,14 @@ app.post('/api/students', async (req, res) => {
         idCode: studentData.idCode,
         phone: studentData.phone,
         email: studentData.email,
-        group: group
+        group_name: group
       };
       
       console.log('Formatted data for Supabase:', supabaseData);
+      
+      // Log the Supabase client configuration
+      console.log('Supabase Admin URL:', process.env.SUPABASE_URL);
+      console.log('Supabase table name being used:', 'students');
       
       const { data, error } = await supabaseAdmin
         .from('students')
@@ -611,6 +615,11 @@ app.post('/api/students', async (req, res) => {
         }
         return res.json({ success: true, message: 'Дані збережено успішно' });
       } else {
+        console.error('Supabase error details:', error);
+        console.error('Error code:', error.code);
+        console.error('Error message:', error.message);
+        console.error('Error details:', error.details);
+        console.error('Error hint:', error.hint);
         console.error('Supabase error, falling back to Google Sheets:', error);
       }
     } else {
@@ -627,6 +636,27 @@ app.post('/api/students', async (req, res) => {
 });
 
 // Start the server
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`Server running on http://localhost:${PORT}`);
+  
+  // Check if students table exists in Supabase
+  if (supabaseAdmin) {
+    try {
+      const { data, error } = await supabaseAdmin
+        .from('students')
+        .select('*')
+        .limit(1);
+      
+      if (error) {
+        console.error('Error checking students table:', error);
+        console.error('This may indicate that the students table does not exist or has incorrect permissions');
+        console.error('Please create the students table in Supabase with the correct structure');
+      } else {
+        console.log('Successfully connected to students table in Supabase');
+        console.log('Table structure seems to be correct');
+      }
+    } catch (error) {
+      console.error('Exception when checking students table:', error);
+    }
+  }
 });
