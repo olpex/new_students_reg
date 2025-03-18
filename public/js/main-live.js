@@ -126,26 +126,33 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (supabase) {
                 try {
                     console.log('Attempting to save data to Supabase...');
-                    const supabaseData = {
-                        ...formData,
-                        group_name: formData.group // Use group_name instead of group for Supabase
-                    };
-                    delete supabaseData.group; // Remove the original group field
                     
-                    const { data, error } = await supabase
-                        .from('students')
-                        .insert([supabaseData]);
+                    // Use the server API endpoint instead of direct Supabase client
+                    // This ensures we use the server-side admin privileges
+                    const apiUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+                        ? '/api/students' 
+                        : 'https://newuser-rose.vercel.app/api/students';
                     
-                    if (error) {
-                        console.error('Supabase insert error:', error);
-                        throw error;
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(formData)
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        console.log('Data saved via server API:', data);
+                        showMessage('Дані успішно відправлено!', 'success');
+                        registrationForm.reset();
+                        phoneInput.value = '+380';
+                        return;
+                    } else {
+                        const errorData = await response.json();
+                        console.error('Server API error:', errorData);
+                        throw new Error(errorData.message || 'Error saving data');
                     }
-                    
-                    console.log('Data saved to Supabase:', data);
-                    showMessage('Дані успішно відправлено!', 'success');
-                    registrationForm.reset();
-                    phoneInput.value = '+380';
-                    return;
                 } catch (supabaseError) {
                     console.error('Error saving to Supabase:', supabaseError);
                 }

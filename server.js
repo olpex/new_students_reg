@@ -195,30 +195,39 @@ app.delete('/api/groups/:name', verifyToken, async (req, res) => {
 // Add group endpoint
 app.post('/api/groups', verifyToken, async (req, res) => {
   const { name } = req.body;
+  console.log('Attempting to add group:', name);
 
   try {
-    // Try Supabase first
-    if (supabase) {
+    // Try Supabase first with admin privileges
+    if (supabaseAdmin) {
       // Check if group already exists
-      const { data: existingGroups, error: fetchError } = await supabase
+      const { data: existingGroups, error: fetchError } = await supabaseAdmin
         .from('groups')
         .select('name')
         .eq('name', name);
+      
+      if (fetchError) {
+        console.error('Error checking if group exists in Supabase:', fetchError);
+      }
       
       if (!fetchError && existingGroups && existingGroups.length > 0) {
         return res.status(400).json({ success: false, message: 'Група з таким номером вже існує' });
       }
       
       // Add new group
-      const { error: insertError } = await supabase
+      const { data, error: insertError } = await supabaseAdmin
         .from('groups')
-        .insert([{ name }]);
+        .insert([{ name }])
+        .select();
       
       if (!insertError) {
-        return res.status(201).json({ success: true, message: 'Групу додано' });
+        console.log('Group added to Supabase successfully:', data);
+        return res.status(201).json({ success: true, message: 'Групу додано', data });
       } else {
         console.error('Supabase insert error, falling back to MongoDB:', insertError);
       }
+    } else {
+      console.error('Supabase admin client not available');
     }
     
     // Fallback to MongoDB
@@ -563,17 +572,19 @@ app.post('/api/students', async (req, res) => {
   }
 
   try {
-    // Try to insert into Supabase first
-    if (supabase) {
-      const { data, error } = await supabase
+    // Try to insert into Supabase first using admin client for higher privileges
+    if (supabaseAdmin) {
+      console.log('Attempting to save student data to Supabase with admin privileges');
+      const { data, error } = await supabaseAdmin
         .from('students')
         .insert([{ 
           ...studentData,
           group_name: group // Use group_name instead of group for Supabase
-        }]);
+        }])
+        .select();
       
       if (!error) {
-        console.log('Student data saved to Supabase successfully');
+        console.log('Student data saved to Supabase successfully:', data);
         // Still send to Google Sheets as a backup
         try {
           await sendToGoogleSheets(group, studentData);
@@ -585,6 +596,8 @@ app.post('/api/students', async (req, res) => {
       } else {
         console.error('Supabase error, falling back to Google Sheets:', error);
       }
+    } else {
+      console.error('Supabase admin client not available');
     }
     
     // Fallback to Google Sheets only

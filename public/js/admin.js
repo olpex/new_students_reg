@@ -82,9 +82,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         try {
-            // Try to add group using the Node.js server API first
+            // Try to add group using the Node.js server API
             try {
-                const response = await fetch('/api/groups', {
+                console.log('Attempting to add group via API:', groupNumber);
+                
+                // Use the correct API URL based on environment
+                const apiUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+                    ? '/api/groups' 
+                    : 'https://newuser-rose.vercel.app/api/groups';
+                
+                const response = await fetch(apiUrl, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -96,6 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
 
                 const data = await response.json();
+                console.log('API response:', data);
 
                 if (response.ok) {
                     groupForm.reset();
@@ -108,7 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     return;
                 }
             } catch (fetchError) {
-                console.log('API fetch failed, using localStorage for adding group:', fetchError);
+                console.error('API fetch failed, using localStorage for adding group:', fetchError);
             }
             
             // Fallback to localStorage for Live Server environment
@@ -126,7 +134,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             groupForm.reset();
             await loadGroups();
-            alert('Група успішно додана');
+            alert('Група успішно додана (локально)');
             
         } catch (error) {
             console.error('Error:', error);
