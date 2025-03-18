@@ -87,37 +87,33 @@ CREATE TABLE IF NOT EXISTS students (
 -- Налаштування Row Level Security для таблиці students
 ALTER TABLE students ENABLE ROW LEVEL SECURITY;
 
--- Створення політики для вставки даних (будь-хто може вставляти)
+-- Видалення всіх існуючих політик для таблиці students
 DO $$
+DECLARE
+  policy_name text;
 BEGIN
-  IF NOT EXISTS (
-    SELECT FROM pg_policies 
-    WHERE tablename = 'students' AND policyname = 'students_insert_policy'
-  ) THEN
-    CREATE POLICY students_insert_policy
-      ON students
-      FOR INSERT
-      TO authenticated, anon
-      WITH CHECK (true);
-  END IF;
+  FOR policy_name IN (
+    SELECT policyname FROM pg_policies WHERE tablename = 'students'
+  )
+  LOOP
+    EXECUTE format('DROP POLICY IF EXISTS %I ON students', policy_name);
+  END LOOP;
 END
 $$;
 
+-- Створення політики для вставки даних (будь-хто може вставляти)
+CREATE POLICY students_insert_policy
+  ON students
+  FOR INSERT
+  TO authenticated, anon
+  WITH CHECK (true);
+
 -- Створення політики для читання даних (будь-хто може читати)
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT FROM pg_policies 
-    WHERE tablename = 'students' AND policyname = 'students_select_policy'
-  ) THEN
-    CREATE POLICY students_select_policy
-      ON students
-      FOR SELECT
-      TO authenticated, anon
-      USING (true);
-  END IF;
-END
-$$;
+CREATE POLICY students_select_policy
+  ON students
+  FOR SELECT
+  TO authenticated, anon
+  USING (true);
 
 -- Створення таблиці groups, якщо вона не існує
 CREATE TABLE IF NOT EXISTS groups (
@@ -128,53 +124,40 @@ CREATE TABLE IF NOT EXISTS groups (
 -- Налаштування Row Level Security для таблиці groups
 ALTER TABLE groups ENABLE ROW LEVEL SECURITY;
 
--- Створення політики для вставки даних в groups
+-- Видалення всіх існуючих політик для таблиці groups
 DO $$
+DECLARE
+  policy_name text;
 BEGIN
-  IF NOT EXISTS (
-    SELECT FROM pg_policies 
-    WHERE tablename = 'groups' AND policyname = 'groups_insert_policy'
-  ) THEN
-    CREATE POLICY groups_insert_policy
-      ON groups
-      FOR INSERT
-      TO authenticated, anon
-      WITH CHECK (true);
-  END IF;
+  FOR policy_name IN (
+    SELECT policyname FROM pg_policies WHERE tablename = 'groups'
+  )
+  LOOP
+    EXECUTE format('DROP POLICY IF EXISTS %I ON groups', policy_name);
+  END LOOP;
 END
 $$;
+
+-- Створення політики для вставки даних в groups
+CREATE POLICY groups_insert_policy
+  ON groups
+  FOR INSERT
+  TO authenticated, anon
+  WITH CHECK (true);
 
 -- Створення політики для читання даних з groups
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT FROM pg_policies 
-    WHERE tablename = 'groups' AND policyname = 'groups_select_policy'
-  ) THEN
-    CREATE POLICY groups_select_policy
-      ON groups
-      FOR SELECT
-      TO authenticated, anon
-      USING (true);
-  END IF;
-END
-$$;
+CREATE POLICY groups_select_policy
+  ON groups
+  FOR SELECT
+  TO authenticated, anon
+  USING (true);
 
 -- Створення політики для видалення даних з groups
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT FROM pg_policies 
-    WHERE tablename = 'groups' AND policyname = 'groups_delete_policy'
-  ) THEN
-    CREATE POLICY groups_delete_policy
-      ON groups
-      FOR DELETE
-      TO authenticated, anon
-      USING (true);
-  END IF;
-END
-$$;
+CREATE POLICY groups_delete_policy
+  ON groups
+  FOR DELETE
+  TO authenticated, anon
+  USING (true);
 
 -- Додавання індексу для швидкого пошуку по group_name
 CREATE INDEX IF NOT EXISTS students_group_name_idx ON students (group_name);
