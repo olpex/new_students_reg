@@ -13,5 +13,18 @@
     "googleapis": "^146.0.0",
     "jsonwebtoken": "^9.0.2",
     "path": "^0.12.7"
-  }
+  },
+  "description": "Система реєстрації слухачів на навчання з адміністративною панеллю для управління групами.",
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/olpex/new_students_reg.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/olpex/new_students_reg/issues"
+  },
+  "homepage": "https://github.com/olpex/new_students_reg#readme"
 }
