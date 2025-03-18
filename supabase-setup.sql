@@ -65,6 +65,14 @@ INSERT INTO groups (name) VALUES
   ('Група 103')
 ON CONFLICT (name) DO NOTHING;
 
+-- Видалення конкретних політик, які можуть викликати конфлікти
+DROP POLICY IF EXISTS "Allow public read access to groups" ON groups;
+DROP POLICY IF EXISTS students_insert_policy ON students;
+DROP POLICY IF EXISTS students_select_policy ON students;
+DROP POLICY IF EXISTS groups_insert_policy ON groups;
+DROP POLICY IF EXISTS groups_select_policy ON groups;
+DROP POLICY IF EXISTS groups_delete_policy ON groups;
+
 -- Створення таблиці students, якщо вона не існує
 CREATE TABLE IF NOT EXISTS students (
   id SERIAL PRIMARY KEY,
@@ -86,20 +94,6 @@ CREATE TABLE IF NOT EXISTS students (
 
 -- Налаштування Row Level Security для таблиці students
 ALTER TABLE students ENABLE ROW LEVEL SECURITY;
-
--- Видалення всіх існуючих політик для таблиці students
-DO $$
-DECLARE
-  policy_name text;
-BEGIN
-  FOR policy_name IN (
-    SELECT policyname FROM pg_policies WHERE tablename = 'students'
-  )
-  LOOP
-    EXECUTE format('DROP POLICY IF EXISTS %I ON students', policy_name);
-  END LOOP;
-END
-$$;
 
 -- Створення політики для вставки даних (будь-хто може вставляти)
 CREATE POLICY students_insert_policy
@@ -123,20 +117,6 @@ CREATE TABLE IF NOT EXISTS groups (
 
 -- Налаштування Row Level Security для таблиці groups
 ALTER TABLE groups ENABLE ROW LEVEL SECURITY;
-
--- Видалення всіх існуючих політик для таблиці groups
-DO $$
-DECLARE
-  policy_name text;
-BEGIN
-  FOR policy_name IN (
-    SELECT policyname FROM pg_policies WHERE tablename = 'groups'
-  )
-  LOOP
-    EXECUTE format('DROP POLICY IF EXISTS %I ON groups', policy_name);
-  END LOOP;
-END
-$$;
 
 -- Створення політики для вставки даних в groups
 CREATE POLICY groups_insert_policy
