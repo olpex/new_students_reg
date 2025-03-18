@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS students (
   idCode TEXT NOT NULL,
   phone TEXT NOT NULL,
   email TEXT NOT NULL,
-  group TEXT NOT NULL,
+  group_name TEXT NOT NULL,  -- Changed from 'group' to 'group_name' to avoid reserved keyword
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 

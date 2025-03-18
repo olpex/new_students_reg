@@ -126,9 +126,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (supabase) {
                 try {
                     console.log('Attempting to save data to Supabase...');
+                    const supabaseData = {
+                        ...formData,
+                        group_name: formData.group // Use group_name instead of group for Supabase
+                    };
+                    delete supabaseData.group; // Remove the original group field
+                    
                     const { data, error } = await supabase
                         .from('students')
-                        .insert([formData]);
+                        .insert([supabaseData]);
                     
                     if (error) {
                         console.error('Supabase insert error:', error);

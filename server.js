@@ -557,56 +557,42 @@ app.post('/api/students', async (req, res) => {
   console.log('Received student registration request');
   const { group, ...studentData } = req.body;
   
-  console.log('Group:', group);
-  console.log('Student data:', studentData);
-  
-  // Find the group
+  // Validate required fields
+  if (!group || !studentData.firstName || !studentData.lastName || !studentData.birthDate) {
+    return res.status(400).json({ success: false, message: 'Missing required fields' });
+  }
+
   try {
-    let groupData;
-    
-    // Try Supabase first
+    // Try to insert into Supabase first
     if (supabase) {
-      const { data: supabaseGroups, error } = await supabase
-        .from('groups')
-        .select('name')
-        .eq('name', group);
+      const { data, error } = await supabase
+        .from('students')
+        .insert([{ 
+          ...studentData,
+          group_name: group // Use group_name instead of group for Supabase
+        }]);
       
-      if (!error && supabaseGroups && supabaseGroups.length > 0) {
-        groupData = supabaseGroups[0];
+      if (!error) {
+        console.log('Student data saved to Supabase successfully');
+        // Still send to Google Sheets as a backup
+        try {
+          await sendToGoogleSheets(group, studentData);
+          console.log('Student data also sent to Google Sheets');
+        } catch (sheetError) {
+          console.error('Error sending to Google Sheets (but Supabase succeeded):', sheetError);
+        }
+        return res.json({ success: true, message: 'Дані збережено успішно' });
       } else {
-        console.error('Supabase error, falling back to MongoDB:', error);
-        // Fallback to MongoDB
-        groupData = await Group.findOne({ name: group });
+        console.error('Supabase error, falling back to Google Sheets:', error);
       }
-    } else {
-      // Fallback to MongoDB
-      groupData = await Group.findOne({ name: group });
     }
     
-    if (!groupData) {
-      console.log('Group not found:', group);
-      return res.status(404).json({ success: false, message: 'Групу не знайдено' });
-    }
-    
-    try {
-      // Send data to Google Sheets via Apps Script
-      console.log('Attempting to send data to Google Sheets for group:', group);
-      const success = await sendToGoogleSheets(group, studentData);
-      
-      if (success) {
-        console.log('Data successfully sent to Google Sheets');
-        res.status(201).json({ success: true, message: 'Дані успішно відправлено до Google Sheets' });
-      } else {
-        console.log('Failed to send data to Google Sheets');
-        res.status(500).json({ success: false, message: 'Помилка при відправці даних до Google Sheets' });
-      }
-    } catch (error) {
-      console.error('Error submitting student data:', error);
-      res.status(500).json({ success: false, message: 'Помилка при відправці даних' });
-    }
+    // Fallback to Google Sheets only
+    await sendToGoogleSheets(group, studentData);
+    res.json({ success: true, message: 'Дані збережено успішно' });
   } catch (error) {
-    console.error('Error fetching group:', error);
-    res.status(404).json({ success: false, message: 'Групу не знайдено' });
+    console.error('Error saving student data:', error);
+    res.status(500).json({ success: false, message: 'Помилка збереження даних' });
   }
 });
 
