@@ -69,11 +69,20 @@ function doPost(e) {
       Logger.log("Full name constructed: " + fullName);
     }
     
+    // Get sequential number (either from request or calculate next number)
+    let sequentialNumber = data.sequentialNumber;
+    if (!sequentialNumber) {
+      // Calculate the next sequential number
+      const lastRow = sheet.getLastRow();
+      sequentialNumber = lastRow > 1 ? lastRow : 1;
+      Logger.log("Sequential number calculated: " + sequentialNumber);
+    }
+    
     // Create row data
     const rowData = [
-      formatDate(new Date()), // Дата реєстрації у форматі дд.мм.рррр
+      sequentialNumber, // Номер (sequential number)
       fullName, // Прізвище, ім'я та по батькові
-      data.dob, // Дата народження
+      data.dob || data.birthDate, // Дата народження
       address, // Місце реєстрації
       data.idCode, // Ідентифікаційний код
       data.phone, // Телефон
@@ -202,7 +211,7 @@ function setupSheet(sheet) {
  */
 function ensureUkrainianHeaders(sheet) {
   const headers = [
-    'Дата реєстрації',
+    'Номер',
     'Прізвище, ім\'я\nта по батькові',
     'Дата народження',
     'Місце реєстрації',
@@ -217,8 +226,8 @@ function ensureUkrainianHeaders(sheet) {
   // Freeze the row of headers
   sheet.setFrozenRows(1);
   
-  // Format the timestamp column
-  sheet.getRange('A:A').setNumberFormat('dd.mm.yyyy hh:mm:ss');
+  // Format the sequential number column
+  sheet.getRange('A:A').setNumberFormat('0');
   
   // Set all columns to width 142
   for (let i = 1; i <= headers.length; i++) {
@@ -293,31 +302,26 @@ function formatDate(date) {
  * Test function to check the functionality of the script
  */
 function testDoPost() {
-  const testData = {
-    sheetId: '1T-z_wf1Vdo_oYyII5ywUR1mM0P69nvRIz8Ry98TupeE',
-    sheetName: 'Test',
-    lastName: 'Test',
-    firstName: 'Student',
-    patronymic: 'Testovic',
-    dob: '2000-01-01',
-    region: 'Kyiv Oblast',
-    city: 'Kyiv',
-    street: 'Testova',
-    house: '123',
-    apartment: '45',
-    idCode: '1234567890',
-    phone: '+380991234567',
-    email: 'test@example.com'
-  };
-  
   // Create a mock event object
   const mockEvent = {
-    parameter: {
-      data: JSON.stringify(testData)
+    postData: {
+      contents: JSON.stringify({
+        sheetId: "1T-z_wf1Vdo_oYyII5ywUR1mM0P69nvRIz8Ry98TupeE",
+        sheetName: "Test Group",
+        fullName: "Тестовий Студент Тестович",
+        birthDate: "01.01.2000",
+        address: "м. Київ, вул. Тестова, 1, кв. 1, Київська область",
+        idCode: "1234567890",
+        phone: "+380991234567",
+        email: "test@example.com",
+        sequentialNumber: 999 // Test sequential number
+      })
     }
   };
   
-  // Call doPost with a mock event
+  // Call the doPost function with the mock event
   const result = doPost(mockEvent);
-  Logger.log("Test result: " + result.getContent());
+  
+  // Log the result
+  Logger.log(result.getContent());
 }
