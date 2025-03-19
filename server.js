@@ -479,22 +479,31 @@ async function sendToGoogleSheets(group, studentData, sequentialNumber) {
   try {
     const url = 'https://script.google.com/macros/s/AKfycbweaeJUUcqqESTNWj-MsuNrHt2eSKlURwI_-O9DfdVYHIak4zpI_bBSNj96L5fDaaec/exec';
     
+    console.log('Sending data to Google Sheets with sequentialNumber:', sequentialNumber);
+    console.log('Using sheet name:', group);
+    
+    const payload = {
+      sheetId: '1T-z_wf1Vdo_oYyII5ywUR1mM0P69nvRIz8Ry98TupeE',
+      sheetName: group,
+      fullName: `${studentData.lastName} ${studentData.firstName} ${studentData.patronymic}`,
+      birthDate: studentData.birthDate,
+      address: `${studentData.city}, вул. ${studentData.street}, ${studentData.house}${studentData.apartment ? '/' + studentData.apartment : ''}, ${studentData.region} область`,
+      phone: studentData.phone,
+      email: studentData.email,
+      school: '',
+      grade: '',
+      fatherName: '',
+      fatherPhone: '',
+      motherName: '',
+      motherPhone: '',
+      sequentialNumber: sequentialNumber
+    };
+    
+    console.log('Payload for Google Sheets:', JSON.stringify(payload, null, 2));
+    
     const response = await fetch(url, {
       method: 'POST',
-      body: JSON.stringify({
-        fullName: `${studentData.lastName} ${studentData.firstName} ${studentData.patronymic}`,
-        birthDate: studentData.birthDate,
-        address: `${studentData.city}, вул. ${studentData.street}, ${studentData.house}${studentData.apartment ? '/' + studentData.apartment : ''}, ${studentData.region} область`,
-        phone: studentData.phone,
-        email: studentData.email,
-        school: '',
-        grade: '',
-        fatherName: '',
-        fatherPhone: '',
-        motherName: '',
-        motherPhone: '',
-        sequentialNumber: sequentialNumber
-      })
+      body: JSON.stringify(payload)
     });
     
     const data = await response.json();
