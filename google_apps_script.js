@@ -7,26 +7,55 @@
  * @return {Object} JSON response with success status and message.
  */
 function doPost(e) {
-  console.log("doPost function called");
-  
   try {
-    console.log("Request parameters:", e && e.parameter ? JSON.stringify(e.parameter) : "No parameters");
-    console.log("Request postData:", e && e.postData ? JSON.stringify(e.postData) : "No postData");
+    console.log("Received request:", JSON.stringify(e));
     
+    // Check if we received any data
+    if (!e) {
+      console.error("No event object received");
+      return ContentService.createTextOutput(JSON.stringify({
+        success: false,
+        message: "No event object received"
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+    
+    // Parse the data from the request
     let data;
     
-    // Parse the incoming data
-    if (e && e.parameter && Object.keys(e.parameter).length > 0) {
+    // Log the request details for debugging
+    console.log("Request parameters:", e.parameter ? JSON.stringify(e.parameter) : "None");
+    console.log("Request postData:", e.postData ? (e.postData.contents ? "Has contents" : "No contents") : "No postData");
+    
+    if (e.parameter && Object.keys(e.parameter).length > 0) {
+      console.log("Using parameter data");
       data = e.parameter;
-      console.log("Using parameter data:", JSON.stringify(data));
-    } else if (e && e.postData && e.postData.contents) {
-      data = JSON.parse(e.postData.contents);
-      console.log("Using postData contents:", JSON.stringify(data));
+    } else if (e.postData && e.postData.contents) {
+      console.log("Using postData contents");
+      try {
+        data = JSON.parse(e.postData.contents);
+        console.log("Parsed JSON data:", JSON.stringify(data));
+      } catch (parseError) {
+        console.error("Error parsing JSON:", parseError.toString());
+        console.log("Raw contents:", e.postData.contents);
+        return ContentService.createTextOutput(JSON.stringify({
+          success: false,
+          message: "Error parsing JSON: " + parseError.toString()
+        })).setMimeType(ContentService.MimeType.JSON);
+      }
     } else {
       console.error("No valid data found in the request");
       return ContentService.createTextOutput(JSON.stringify({
         success: false,
         message: "No valid data found in the request"
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+    
+    // Validate required fields
+    if (!data.sheetId) {
+      console.error("Missing required field: sheetId");
+      return ContentService.createTextOutput(JSON.stringify({
+        success: false,
+        message: "Missing required field: sheetId"
       })).setMimeType(ContentService.MimeType.JSON);
     }
     
@@ -121,6 +150,16 @@ function doPost(e) {
     if (data.preserveRegistrationDateFormat === true) {
       const dateCell = sheet.getRange(lastRow + 1, 2); // Column B is the date column
       dateCell.setNumberFormat("@"); // Set as text format
+      
+      // Ensure the date is displayed as plain text without any automatic formatting
+      if (data.registrationDate && data.registrationDate.startsWith("'")) {
+        // If the date already has an apostrophe prefix, we're good
+        console.log("Date already has apostrophe prefix:", data.registrationDate);
+      } else {
+        // If not, we need to add it and update the cell
+        console.log("Adding apostrophe prefix to date:", data.registrationDate);
+        dateCell.setValue("'" + data.registrationDate);
+      }
     }
     
     console.log("Data added successfully to sheet:", data.sheetName);
@@ -141,15 +180,27 @@ function doPost(e) {
 }
 
 /**
- * Test function to verify the doPost functionality.
+ * Test function for doPost.
+ * This function simulates a POST request to the doPost function.
  */
 function testDoPost() {
-  const testData = {
-    parameter: {
-      sheetId: "1T-z_wf1Vdo_oYyII5ywUR1mM0P69nvRIz8Ry98TupeE", // Використовуємо реальний ID таблиці з .env файлу
-      sheetName: "Test",
+  try {
+    // Get the ID of the current spreadsheet
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const sheetId = ss ? ss.getId() : "1RvdTrPXLrdO4KNVhYXDPnNlIhXlUxnZ_6uyXJxUzDjE"; // Replace with your actual spreadsheet ID if needed
+    
+    console.log("Using spreadsheet ID:", sheetId);
+    
+    // Create a test data object
+    const testData = {
+      sheetId: sheetId,
+      sheetName: "Тестова група",
       fullName: "Тестовий Студент",
-      registrationDate: "'19.03.2025 14:30:00", // Note the apostrophe prefix
+      registrationDate: "'" + new Date().toLocaleDateString('uk-UA', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      }),
       preserveRegistrationDateFormat: true,
       dob: "01.01.2000",
       address: "вул. Тестова, 123, м. Київ",
@@ -161,11 +212,26 @@ function testDoPost() {
       fatherPhone: "+380991234568",
       motherName: "Тестова Мати",
       motherPhone: "+380991234569"
-    }
-  };
-  
-  const result = doPost(testData);
-  console.log("Test result:", result.getContent());
+    };
+    
+    // Create a mock event object with parameter data
+    const mockEvent = {
+      parameter: testData
+    };
+    
+    console.log("Mock event created:", JSON.stringify(mockEvent));
+    
+    // Call doPost with the mock event
+    const result = doPost(mockEvent);
+    
+    // Log the result
+    console.log("Test result:", result.getContent());
+    
+    return "Test completed. Check the logs for details.";
+  } catch (error) {
+    console.error("Error in testDoPost:", error.toString());
+    return "Test failed: " + error.toString();
+  }
 }
 
 /**
