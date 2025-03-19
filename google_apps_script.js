@@ -8,12 +8,13 @@
  */
 function doPost(e) {
   console.log("doPost function called");
-  console.log("Request parameters:", JSON.stringify(e.parameter));
-  console.log("Request postData:", e.postData ? JSON.stringify(e.postData) : "No postData");
-  
-  let data;
   
   try {
+    console.log("Request parameters:", e && e.parameter ? JSON.stringify(e.parameter) : "No parameters");
+    console.log("Request postData:", e && e.postData ? JSON.stringify(e.postData) : "No postData");
+    
+    let data;
+    
     // Parse the incoming data
     if (e && e.parameter && Object.keys(e.parameter).length > 0) {
       data = e.parameter;
@@ -38,8 +39,37 @@ function doPost(e) {
       })).setMimeType(ContentService.MimeType.JSON);
     }
     
+    // Check if SpreadsheetApp is available
+    if (!SpreadsheetApp) {
+      console.error("SpreadsheetApp is not available");
+      return ContentService.createTextOutput(JSON.stringify({
+        success: false,
+        message: "SpreadsheetApp is not available. Make sure the script has the necessary permissions."
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+    
     // Open the spreadsheet and get the sheet
-    const spreadsheet = SpreadsheetApp.openById(data.sheetId);
+    let spreadsheet;
+    try {
+      console.log("Attempting to open spreadsheet with ID:", data.sheetId);
+      spreadsheet = SpreadsheetApp.openById(data.sheetId);
+    } catch (error) {
+      console.error("Error opening spreadsheet:", error.toString());
+      return ContentService.createTextOutput(JSON.stringify({
+        success: false,
+        message: "Error opening spreadsheet: " + error.toString()
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+    
+    // Check if spreadsheet was opened successfully
+    if (!spreadsheet) {
+      console.error("Failed to open spreadsheet");
+      return ContentService.createTextOutput(JSON.stringify({
+        success: false,
+        message: "Failed to open spreadsheet. Check if the sheetId is correct and the script has access to it."
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+    
     let sheet = spreadsheet.getSheetByName(data.sheetName);
     
     // Create the sheet if it doesn't exist
@@ -116,7 +146,7 @@ function doPost(e) {
 function testDoPost() {
   const testData = {
     parameter: {
-      sheetId: "YOUR_SHEET_ID", // Replace with your actual sheet ID
+      sheetId: "1T-z_wf1Vdo_oYyII5ywUR1mM0P69nvRIz8Ry98TupeE", // Використовуємо реальний ID таблиці з .env файлу
       sheetName: "Test",
       fullName: "Тестовий Студент",
       registrationDate: "'19.03.2025 14:30:00", // Note the apostrophe prefix
@@ -147,4 +177,20 @@ function doGet() {
     success: true,
     message: "Script is running"
   })).setMimeType(ContentService.MimeType.JSON);
+}
+
+/**
+ * This function should be run manually once to ensure the script has the necessary permissions.
+ * It will prompt for authorization when run.
+ */
+function setupPermissions() {
+  try {
+    // Try to access SpreadsheetApp to trigger authorization
+    const spreadsheets = SpreadsheetApp.getActiveSpreadsheet();
+    
+    // If we get here, permissions are granted
+    return "Permissions successfully set up. The script now has access to SpreadsheetApp.";
+  } catch (error) {
+    return "Error setting up permissions: " + error.toString();
+  }
 }
