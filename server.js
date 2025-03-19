@@ -769,10 +769,17 @@ async function ensureUkrainianHeadersInSheet(spreadsheetId, sheetName) {
 // Students registration endpoint
 app.post('/api/students', async (req, res) => {
   console.log('Received student registration request');
+  console.log('Request body:', JSON.stringify(req.body, null, 2));
   const { group, ...studentData } = req.body;
   
   // Validate required fields
   if (!group || !studentData.firstName || !studentData.lastName || !studentData.birthDate) {
+    console.error('Missing required fields:', { 
+      group: group ? 'present' : 'missing', 
+      firstName: studentData.firstName ? 'present' : 'missing', 
+      lastName: studentData.lastName ? 'present' : 'missing', 
+      birthDate: studentData.birthDate ? 'present' : 'missing' 
+    });
     return res.status(400).json({ success: false, message: 'Missing required fields' });
   }
 
@@ -877,6 +884,7 @@ app.post('/api/students', async (req, res) => {
         console.error('Error message:', error.message);
         console.error('Error details:', error.details);
         console.error('Error hint:', error.hint);
+        console.error('Supabase insert data that caused error:', JSON.stringify(supabaseData, null, 2));
         console.error('Supabase error, falling back to Google Sheets:', error);
       }
     } else {
