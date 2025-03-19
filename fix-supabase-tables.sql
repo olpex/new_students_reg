@@ -6,8 +6,8 @@ DROP TABLE IF EXISTS students;
 -- Create the students table with the correct column names
 CREATE TABLE students (
   id SERIAL PRIMARY KEY,
-  lastname TEXT NOT NULL,
-  firstname TEXT NOT NULL,
+  last_name TEXT NOT NULL,
+  first_name TEXT NOT NULL,
   patronymic TEXT,
   birth_date DATE NOT NULL,
   region TEXT NOT NULL,

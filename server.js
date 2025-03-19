@@ -783,16 +783,16 @@ app.post('/api/students', async (req, res) => {
       
       // Convert camelCase to match Supabase table structure
       const supabaseData = {
-        lastName: studentData.lastName,
-        firstName: studentData.firstName,
+        last_name: studentData.lastName,
+        first_name: studentData.firstName,
         patronymic: studentData.patronymic,
-        birthDate: studentData.birthDate,
+        birth_date: studentData.birthDate,
         region: studentData.region,
         city: studentData.city,
         street: studentData.street,
         house: studentData.house,
         apartment: studentData.apartment,
-        idCode: studentData.idCode,
+        id_code: studentData.idCode,
         phone: studentData.phone,
         email: studentData.email,
         group_name: group
@@ -822,16 +822,16 @@ app.post('/api/students', async (req, res) => {
             const createTableSQL = `
               CREATE TABLE IF NOT EXISTS students (
                 id SERIAL PRIMARY KEY,
-                lastName TEXT NOT NULL,
-                firstName TEXT NOT NULL,
+                last_name TEXT NOT NULL,
+                first_name TEXT NOT NULL,
                 patronymic TEXT,
-                birthDate DATE NOT NULL,
+                birth_date DATE NOT NULL,
                 region TEXT NOT NULL,
                 city TEXT NOT NULL,
                 street TEXT,
                 house TEXT,
                 apartment TEXT,
-                idCode TEXT NOT NULL,
+                id_code TEXT NOT NULL,
                 phone TEXT NOT NULL,
                 email TEXT NOT NULL,
                 group_name TEXT NOT NULL,

@@ -8,16 +8,16 @@ async function testStudentRegistration() {
     
     // Test data
     const testStudent = {
-      firstName: 'Test',
-      lastName: 'Student',
+      first_name: 'Test',
+      last_name: 'Student',
       patronymic: 'Testovich',
-      birthDate: '2000-01-01',
+      birth_date: '2000-01-01',
       region: 'Test Region',
       city: 'Test City',
       street: 'Test Street',
       house: '1',
       apartment: '1',
-      idCode: '1234567890',
+      id_code: '1234567890',
       phone: '+380123456789',
       email: 'test@example.com',
       group: 'Група 101' // Using an existing group

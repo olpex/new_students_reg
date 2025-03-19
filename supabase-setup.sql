@@ -3,16 +3,16 @@
 -- Create students table
 CREATE TABLE IF NOT EXISTS students (
   id SERIAL PRIMARY KEY,
-  lastName TEXT NOT NULL,
-  firstName TEXT NOT NULL,
+  last_name TEXT NOT NULL,
+  first_name TEXT NOT NULL,
   patronymic TEXT,
-  birthDate DATE NOT NULL,
+  birth_date DATE NOT NULL,
   region TEXT NOT NULL,
   city TEXT NOT NULL,
   street TEXT,
   house TEXT,
   apartment TEXT,
-  idCode TEXT NOT NULL,
+  id_code TEXT NOT NULL,
   phone TEXT NOT NULL,
   email TEXT NOT NULL,
   group_name TEXT NOT NULL,
@@ -41,4 +41,4 @@ CREATE POLICY students_select_policy
 
 -- Create indexes for faster search
 CREATE INDEX IF NOT EXISTS students_group_name_idx ON students (group_name);
-CREATE INDEX IF NOT EXISTS students_lastname_idx ON students (lastName);
+CREATE INDEX IF NOT EXISTS students_lastname_idx ON students (last_name);
