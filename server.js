@@ -333,16 +333,16 @@ app.get('/api/test/students', verifyToken, async (req, res) => {
       
       // Generate test student data
       const testStudent = {
-        lastName: 'Тестовий',
-        firstName: 'Студент',
+        last_name: 'Тестовий',
+        first_name: 'Студент',
         patronymic: 'Тестович',
-        birthDate: '2000-01-01',
+        birth_date: '2000-01-01',
         region: 'Київська',
         city: 'Київ',
         street: 'Тестова',
         house: '1',
         apartment: '1',
-        idCode: '1234567890',
+        id_code: '1234567890',
         phone: '+380991234567',
         email: 'test@example.com',
         group_name: 'Тестова група'
@@ -372,14 +372,43 @@ app.get('/api/test/students', verifyToken, async (req, res) => {
         console.error('Error inserting test student:', error);
         console.error('Error details:', error.message, error.details);
         
-        // Try to get more information about the table
-        const { data: tableInfo, error: tableError } = await supabaseAdmin
-          .rpc('get_table_info', { table_name: 'students' });
-        
-        if (tableError) {
-          console.error('Error getting table info:', tableError);
-        } else {
-          console.log('Table info:', tableInfo);
+        // Try to get more information about the table structure
+        try {
+          // First, try to directly query the table structure
+          const { data: tableColumns, error: columnsError } = await supabaseAdmin
+            .from('students')
+            .select('*')
+            .limit(1);
+            
+          if (columnsError) {
+            console.error('Error querying table structure:', columnsError);
+          } else {
+            console.log('Table columns from sample row:', tableColumns.length > 0 ? Object.keys(tableColumns[0]) : 'No rows found');
+          }
+          
+          // Try to get schema information
+          const { data: tableInfo, error: tableError } = await supabaseAdmin
+            .rpc('get_table_info', { table_name: 'students' });
+          
+          if (tableError) {
+            console.error('Error getting table info via RPC:', tableError);
+            
+            // Alternative approach if RPC fails
+            const { data: schemaInfo, error: schemaError } = await supabaseAdmin
+              .from('information_schema.columns')
+              .select('column_name')
+              .eq('table_name', 'students');
+              
+            if (schemaError) {
+              console.error('Error getting schema info:', schemaError);
+            } else {
+              console.log('Schema info from information_schema:', schemaInfo);
+            }
+          } else {
+            console.log('Table info from RPC:', tableInfo);
+          }
+        } catch (infoError) {
+          console.error('Error while trying to get table information:', infoError);
         }
         
         res.json({ 
