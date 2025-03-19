@@ -475,294 +475,36 @@ function formatAddress(data) {
 }
 
 // Function to send data to Google Sheets using Apps Script
-async function sendToGoogleSheets(groupName, data) {
-  // Use the latest script ID from environment variables
-  const GOOGLE_APP_SCRIPT_ID = process.env.GOOGLE_APP_SCRIPT_ID;
-  const GOOGLE_SHEETS_ID = process.env.GOOGLE_SHEETS_ID;
-  
+async function sendToGoogleSheets(group, studentData, sequentialNumber) {
   try {
-    // First, directly create or update the sheet with Ukrainian headers using Google Sheets API
-    await ensureUkrainianHeadersInSheet(GOOGLE_SHEETS_ID, groupName);
+    const url = 'https://script.google.com/macros/s/AKfycbweaeJUUcqqESTNWj-MsuNrHt2eSKlURwI_-O9DfdVYHIak4zpI_bBSNj96L5fDaaec/exec';
     
-    // Use fetch to call the Google Apps Script web app
-    const appScriptUrl = `https://script.google.com/macros/s/${GOOGLE_APP_SCRIPT_ID}/exec`;
-    
-    // Format the address
-    const address = formatAddress(data);
-    
-    // Prepare the data for Google Apps Script
-    const payload = {
-      sheetId: GOOGLE_SHEETS_ID,
-      sheetName: groupName,
-      fullName: `${data.lastName} ${data.firstName} ${data.patronymic}`,
-      registrationDate: "'" + new Date().toLocaleString('uk-UA', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
-      }), // Format: 'dd.mm.yyyy with apostrophe prefix to force text format
-      preserveRegistrationDateFormat: true, // Flag to prevent reformatting
-      dob: data.birthDate,
-      address: address, // Send the formatted address
-      region: data.region, // Still include individual fields for backward compatibility
-      city: data.city,
-      street: data.street,
-      house: data.house,
-      apartment: data.apartment,
-      idCode: data.idCode,
-      phone: data.phone,
-      email: data.email,
-      useUkrainianHeaders: true // Flag to ensure Ukrainian headers are used
-    };
-
-    console.log('Sending data to Google Apps Script URL:', appScriptUrl);
-    console.log('Payload:', JSON.stringify(payload, null, 2));
-    console.log('Preparing to send payload to Google Apps Script...');
-    
-    // Make the request to the Apps Script web app
-    const response = await fetch(appScriptUrl, {
+    const response = await fetch(url, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      redirect: 'follow',
-      body: JSON.stringify(payload)
+      body: JSON.stringify({
+        fullName: `${studentData.lastName} ${studentData.firstName} ${studentData.patronymic}`,
+        birthDate: studentData.birthDate,
+        address: `${studentData.city}, вул. ${studentData.street}, ${studentData.house}${studentData.apartment ? '/' + studentData.apartment : ''}, ${studentData.region} область`,
+        phone: studentData.phone,
+        email: studentData.email,
+        school: '',
+        grade: '',
+        fatherName: '',
+        fatherPhone: '',
+        motherName: '',
+        motherPhone: '',
+        sequentialNumber: sequentialNumber
+      })
     });
-
-    console.log('Response status:', response.status);
-    console.log('Response headers:', response.headers);
-    const responseText = await response.text();
-    console.log('Response text:', responseText);
     
-    let responseData;
-    try {
-      responseData = JSON.parse(responseText);
-      console.log('Parsed response:', responseData);
-    } catch (e) {
-      console.error('Failed to parse response as JSON:', e);
-      // If we can't parse the response, we'll just use the text
-      responseData = { success: false, message: responseText };
+    const data = await response.json();
+    if (!data.success) {
+      throw new Error(data.message);
     }
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}, message: ${responseData.message || responseText}`);
-    }
-
-    console.log('Data sent to Google Sheets successfully.');
-    return responseData.success;
+    return data;
   } catch (error) {
-    console.error('Error sending data to Google Sheets:', error.toString());
-    console.error('Error details:', error);
-    return false;
-  }
-}
-
-// Function to ensure Ukrainian headers in a Google Sheet
-async function ensureUkrainianHeadersInSheet(spreadsheetId, sheetName) {
-  try {
-    console.log(`Ensuring Ukrainian headers in sheet: ${sheetName}`);
-    
-    // Define the Ukrainian headers
-    const ukrainianHeaders = [
-      'Дата реєстрації',
-      'Прізвище, ім\'я та по батькові',
-      'Дата народження',
-      'Місце реєстрації',
-      'Ідентифікаційний код',
-      'Телефон',
-      'Email'
-    ];
-    
-    // Create a direct HTTP request to the Google Sheets API
-    const sheetsApiUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}:batchUpdate`;
-    
-    // Get the OAuth2 token from environment variables or another secure source
-    // For simplicity in this example, we're using a direct fetch, but in production
-    // you should use proper OAuth2 authentication
-    const accessToken = process.env.GOOGLE_API_ACCESS_TOKEN;
-    
-    if (!accessToken) {
-      console.error('No Google API access token found in environment variables');
-      return false;
-    }
-    
-    // Check if the sheet exists and get its ID
-    const spreadsheetUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}`;
-    const spreadsheetResponse = await fetch(spreadsheetUrl, {
-      headers: {
-        'Authorization': `Bearer ${accessToken}`
-      }
-    });
-    
-    if (!spreadsheetResponse.ok) {
-      console.error(`Failed to get spreadsheet: ${spreadsheetResponse.status}`);
-      return false;
-    }
-    
-    const spreadsheetData = await spreadsheetResponse.json();
-    let sheetId = null;
-    let sheetExists = false;
-    
-    // Find the sheet by name
-    for (const sheet of spreadsheetData.sheets) {
-      if (sheet.properties.title === sheetName) {
-        sheetId = sheet.properties.sheetId;
-        sheetExists = true;
-        break;
-      }
-    }
-    
-    // Prepare the request body
-    let requestBody = {
-      requests: []
-    };
-    
-    if (!sheetExists) {
-      // Add a request to create the sheet
-      requestBody.requests.push({
-        addSheet: {
-          properties: {
-            title: sheetName
-          }
-        }
-      });
-      
-      // Send the request to create the sheet
-      const createResponse = await fetch(sheetsApiUrl, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(requestBody)
-      });
-
-      if (!createResponse.ok) {
-        console.error(`Failed to create sheet: ${createResponse.status}`);
-        return false;
-      }
-      
-      const createData = await createResponse.json();
-      sheetId = createData.replies[0].addSheet.properties.sheetId;
-      
-      // Reset requests for the next operation
-      requestBody.requests = [];
-    }
-    
-    // Add a request to update the headers
-    requestBody.requests.push({
-      updateCells: {
-        start: {
-          sheetId: sheetId,
-          rowIndex: 0,
-          columnIndex: 0
-        },
-        rows: [{
-          values: ukrainianHeaders.map(header => ({
-            userEnteredValue: {
-              stringValue: header
-            },
-            userEnteredFormat: {
-              backgroundColor: {
-                red: 0.26,
-                green: 0.52,
-                blue: 0.96
-              },
-              textFormat: {
-                foregroundColor: {
-                  red: 1.0,
-                  green: 1.0,
-                  blue: 1.0
-                },
-                bold: true,
-                horizontalAlignment: 'CENTER',
-                verticalAlignment: 'MIDDLE'
-              },
-              numberFormat: {
-                type: 'TEXT',
-                pattern: ''
-              },
-              padding: {
-                top: 10,
-                right: 10,
-                bottom: 10,
-                left: 10
-              },
-              verticalAlignment: 'MIDDLE',
-              wrapStrategy: 'LEGACY_WRAP'
-            }
-          }))
-        }],
-        fields: 'userEnteredValue,userEnteredFormat'
-      }
-    });
-    
-    // Add a request to freeze the first row
-    requestBody.requests.push({
-      updateSheetProperties: {
-        properties: {
-          sheetId: sheetId,
-          gridProperties: {
-            frozenRowCount: 1
-          }
-        },
-        fields: 'gridProperties.frozenRowCount'
-      }
-    });
-    
-    // Add a request to set row height
-    requestBody.requests.push({
-      updateDimensionProperties: {
-        range: {
-          sheetId: sheetId,
-          dimension: 'ROWS',
-          startIndex: 0,
-          endIndex: 1
-        },
-        properties: {
-          pixelSize: 50
-        },
-        fields: 'pixelSize'
-      }
-    });
-    
-    // Add requests to set column widths to 142 pixels for each column
-    for (let i = 0; i < ukrainianHeaders.length; i++) {
-      requestBody.requests.push({
-        updateDimensionProperties: {
-          range: {
-            sheetId: sheetId,
-            dimension: 'COLUMNS',
-            startIndex: i,
-            endIndex: i + 1
-          },
-          properties: {
-            pixelSize: 142
-          },
-          fields: 'pixelSize'
-        }
-      });
-    }
-    
-    // Send the request to update the headers
-    const updateResponse = await fetch(sheetsApiUrl, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${accessToken}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(requestBody)
-    });
-
-    if (!updateResponse.ok) {
-      console.error(`Failed to update headers: ${updateResponse.status}`);
-      return false;
-    }
-    
-    console.log('Successfully ensured Ukrainian headers in the sheet');
-    return true;
-  } catch (error) {
-    console.error('Error ensuring Ukrainian headers:', error);
-    return false;
+    console.error('Error sending to Google Sheets:', error);
+    throw error;
   }
 }
 
@@ -872,7 +614,7 @@ app.post('/api/students', async (req, res) => {
         console.log('Student data saved to Supabase successfully:', data);
         // Still send to Google Sheets as a backup
         try {
-          await sendToGoogleSheets(group, studentData);
+          await sendToGoogleSheets(group, studentData, data[0].id);
           console.log('Student data also sent to Google Sheets');
         } catch (sheetError) {
           console.error('Error sending to Google Sheets (but Supabase succeeded):', sheetError);
@@ -892,7 +634,7 @@ app.post('/api/students', async (req, res) => {
     }
     
     // Fallback to Google Sheets only
-    await sendToGoogleSheets(group, studentData);
+    await sendToGoogleSheets(group, studentData, 1);
     res.json({ success: true, message: 'Дані збережено успішно' });
   } catch (error) {
     console.error('Error saving student data:', error);
