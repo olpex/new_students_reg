@@ -498,11 +498,8 @@ async function sendToGoogleSheets(groupName, data) {
       registrationDate: "'" + new Date().toLocaleString('uk-UA', {
         day: '2-digit',
         month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit'
-      }), // Format: 'dd.mm.yyyy hh:mm:ss with apostrophe prefix to force text format
+        year: 'numeric'
+      }), // Format: 'dd.mm.yyyy with apostrophe prefix to force text format
       preserveRegistrationDateFormat: true, // Flag to prevent reformatting
       dob: data.birthDate,
       address: address, // Send the formatted address
