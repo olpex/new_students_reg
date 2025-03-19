@@ -466,14 +466,14 @@ async function sendToGoogleSheets(groupName, data) {
       sheetId: GOOGLE_SHEETS_ID,
       sheetName: groupName,
       fullName: `${data.lastName} ${data.firstName} ${data.patronymic}`,
-      registrationDate: new Date().toLocaleString('uk-UA', {
+      registrationDate: "'" + new Date().toLocaleString('uk-UA', {
         day: '2-digit',
         month: '2-digit',
         year: 'numeric',
         hour: '2-digit',
         minute: '2-digit',
         second: '2-digit'
-      }), // Format: dd.mm.yyyy hh:mm:ss
+      }), // Format: 'dd.mm.yyyy hh:mm:ss with apostrophe prefix to force text format
       preserveRegistrationDateFormat: true, // Flag to prevent reformatting
       dob: data.birthDate,
       address: address, // Send the formatted address
@@ -490,6 +490,7 @@ async function sendToGoogleSheets(groupName, data) {
 
     console.log('Sending data to Google Apps Script URL:', appScriptUrl);
     console.log('Payload:', JSON.stringify(payload, null, 2));
+    console.log('Preparing to send payload to Google Apps Script...');
     
     // Make the request to the Apps Script web app
     const response = await fetch(appScriptUrl, {
@@ -502,6 +503,7 @@ async function sendToGoogleSheets(groupName, data) {
     });
 
     console.log('Response status:', response.status);
+    console.log('Response headers:', response.headers);
     const responseText = await response.text();
     console.log('Response text:', responseText);
     
@@ -519,6 +521,7 @@ async function sendToGoogleSheets(groupName, data) {
       throw new Error(`HTTP error! status: ${response.status}, message: ${responseData.message || responseText}`);
     }
 
+    console.log('Data sent to Google Sheets successfully.');
     return responseData.success;
   } catch (error) {
     console.error('Error sending data to Google Sheets:', error.toString());
