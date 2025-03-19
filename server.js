@@ -466,6 +466,15 @@ async function sendToGoogleSheets(groupName, data) {
       sheetId: GOOGLE_SHEETS_ID,
       sheetName: groupName,
       fullName: `${data.lastName} ${data.firstName} ${data.patronymic}`,
+      registrationDate: new Date().toLocaleString('uk-UA', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      }), // Format: dd.mm.yyyy hh:mm:ss
+      preserveRegistrationDateFormat: true, // Flag to prevent reformatting
       dob: data.birthDate,
       address: address, // Send the formatted address
       region: data.region, // Still include individual fields for backward compatibility
