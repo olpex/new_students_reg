@@ -57,8 +57,8 @@ function doPost(e) {
     
     // Format the address if it's not already provided
     let address = data.address;
-    if (!address && (data.city || data.street || data.house || data.region)) {
-      address = formatAddress(data.city, data.street, data.house, data.apartment, data.region);
+    if (!address && (data.cityType || data.city || data.street || data.house || data.apartment || data.region)) {
+      address = formatAddress(data.cityType, data.city, data.street, data.house, data.apartment, data.region);
       Logger.log("Address formatted: " + address);
     }
     
@@ -256,36 +256,33 @@ function ensureUkrainianHeaders(sheet) {
 /**
  * Formats the address in the requested format
  */
-function formatAddress(city, street, house, apartment, region) {
-  // Create an array of address parts
-  const addressParts = [];
-  
-  // Add city if it exists
-  if (city && city.trim()) {
-    addressParts.push(city.trim());
+function formatAddress(cityType, city, street, house, apartment, region) {
+  // Add prefixes based on city type
+  let formattedCity = '';
+  switch(cityType) {
+    case 'місто':
+      formattedCity = `м. ${city}`;
+      break;
+    case 'селище':
+      formattedCity = `смт ${city}`;
+      break;
+    case 'село':
+      formattedCity = `с. ${city}`;
+      break;
+    default:
+      formattedCity = city;
   }
-  
-  // Add street if it exists
-  if (street && street.trim()) {
-    addressParts.push(`вул. ${street.trim()}`);
-  }
-  
-  // Handle house and apartment
-  if (house && house.trim()) {
-    if (apartment && apartment.trim()) {
-      addressParts.push(`${house.trim()}/${apartment.trim()}`);
-    } else {
-      addressParts.push(house.trim());
-    }
-  }
-  
-  // Add region if it exists, with "область" after it
-  if (region && region.trim()) {
-    addressParts.push(`${region.trim()} область`);
-  }
-  
-  // Join all parts with commas
-  return addressParts.join(', ');
+
+  // Build address components
+  const components = [
+    formattedCity,
+    street ? `вул. ${street}` : '',
+    house ? (apartment ? `буд. ${house}, кв. ${apartment}` : `буд. ${house}`) : '',
+    region ? `${region} область` : ''
+  ];
+
+  // Filter out empty components and join with commas
+  return components.filter(c => c).join(', ');
 }
 
 /**
