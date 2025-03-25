@@ -65,7 +65,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     if (formData.cityType === 'місто') {
                         formattedCity = `м. ${formattedCity}`;
                     } else if (formData.cityType === 'селище') {
-                        formattedCity = `смт ${formattedCity}`;
+                        formattedCity = `смт. ${formattedCity}`;
                     } else if (formData.cityType === 'село') {
                         formattedCity = `с. ${formattedCity}`;
                     }
