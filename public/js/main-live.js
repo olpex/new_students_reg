@@ -40,6 +40,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             patronymic: document.getElementById('patronymic').value,
             birthDate: document.getElementById('birthDate').value,
             region: document.getElementById('region').value,
+            cityType: document.getElementById('cityType').value,
             city: document.getElementById('city').value,
             street: document.getElementById('street').value,
             house: document.getElementById('house').value,
@@ -56,9 +57,20 @@ document.addEventListener('DOMContentLoaded', async () => {
                 // Format the address according to the required format
                 const addressParts = [];
                 
-                // Add city if it exists
+                // Add city with prefix based on city type
                 if (formData.city && formData.city.trim()) {
-                    addressParts.push(formData.city.trim());
+                    let formattedCity = formData.city.trim();
+                    
+                    // Add prefix based on city type
+                    if (formData.cityType === 'місто') {
+                        formattedCity = `м. ${formattedCity}`;
+                    } else if (formData.cityType === 'селище') {
+                        formattedCity = `смт ${formattedCity}`;
+                    } else if (formData.cityType === 'село') {
+                        formattedCity = `с. ${formattedCity}`;
+                    }
+                    
+                    addressParts.push(formattedCity);
                 }
                 
                 // Add street if it exists
@@ -69,9 +81,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 // Handle house and apartment
                 if (formData.house && formData.house.trim()) {
                     if (formData.apartment && formData.apartment.trim()) {
-                        addressParts.push(`${formData.house.trim()}/${formData.apartment.trim()}`);
+                        addressParts.push(`буд. ${formData.house.trim()}, кв. ${formData.apartment.trim()}`);
                     } else {
-                        addressParts.push(formData.house.trim());
+                        addressParts.push(`буд. ${formData.house.trim()}`);
                     }
                 }
                 
@@ -91,6 +103,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     dob: formData.birthDate,
                     address: formattedAddress, // Use the formatted address
                     region: formData.region, // Still include individual fields for backward compatibility
+                    cityType: formData.cityType,
                     city: formData.city,
                     street: formData.street,
                     house: formData.house,
@@ -347,6 +360,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             isValid = false;
         } else {
             clearFieldError('region');
+        }
+
+        // Validate City Type
+        const cityType = document.getElementById('cityType').value;
+        if (!cityType) {
+            showFieldError('cityType', 'Виберіть тип міста');
+            isValid = false;
+        } else {
+            clearFieldError('cityType');
         }
 
         // Validate City - only Cyrillic letters

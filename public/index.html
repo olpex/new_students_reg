@@ -82,7 +82,16 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="city">Місто/селище/село:</label>
+                            <label for="cityType">Тип населеного пункту:</label>
+                            <select id="cityType" name="cityType" required>
+                                <option value="">Виберіть тип</option>
+                                <option value="місто">Місто</option>
+                                <option value="селище">Селище</option>
+                                <option value="село">Село</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="city">Назва населеного пункту:</label>
                             <input type="text" id="city" name="city" required>
                         </div>
                         <div class="form-group">
