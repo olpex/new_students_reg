@@ -264,7 +264,7 @@ function formatAddress(cityType, city, street, house, apartment, region) {
       formattedCity = `м. ${city}`;
       break;
     case 'селище':
-      formattedCity = `смт ${city}`;
+      formattedCity = `смт. ${city}`;
       break;
     case 'село':
       formattedCity = `с. ${city}`;
