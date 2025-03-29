@@ -35,6 +35,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Collect form data
         const formData = {
+            status: document.getElementById('status').value,
             lastName: document.getElementById('lastName').value,
             firstName: document.getElementById('firstName').value,
             patronymic: document.getElementById('patronymic').value,
@@ -99,6 +100,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const googleScriptData = {
                     sheetId: '1T-z_wf1Vdo_oYyII5ywUR1mM0P69nvRIz8Ry98TupeE',
                     sheetName: formData.group, // Use the group name as the sheet name
+                    status: formData.status, // Add status field
                     fullName: `${formData.lastName} ${formData.firstName} ${formData.patronymic}`, // Combined name field
                     dob: formData.birthDate,
                     address: formattedAddress, // Use the formatted address
@@ -459,6 +461,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             isValid = false;
         } else {
             clearFieldError('group');
+        }
+
+        // Validate Status
+        const status = document.getElementById('status').value;
+        if (!status) {
+            showFieldError('status', 'Виберіть статус');
+            isValid = false;
+        } else {
+            clearFieldError('status');
         }
 
         return isValid;
