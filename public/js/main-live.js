@@ -98,7 +98,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 console.log("Formatted address:", formattedAddress);
                 
                 const googleScriptData = {
-                    sheetId: '1T-z_wf1Vdo_oYyII5ywUR1mM0P69nvRIz8Ry98TupeE',
+                    sheetId: '1mr2DoKyJctiQGjZ3hBkkK72dPzaY5aTPKbNRSJbbH_CXr7dI_11NpnmM',
                     sheetName: formData.group, // Use the group name as the sheet name
                     timestamp: new Date().toLocaleString('uk-UA'), // Add timestamp
                     fullName: `${formData.lastName} ${formData.firstName} ${formData.patronymic}`, // Combined name field
@@ -117,7 +117,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     useUkrainianHeaders: true // Flag to ensure Ukrainian headers are used
                 };
                 
-                const googleScriptUrl = 'https://script.google.com/macros/s/AKfycbwSCk6s6Xuyjn-skdqMum13i_Yhuq2pmtsXiiGrUZxNP3nmFmm45XwDBBU8kuaMxlaccQ/exec';
+                const googleScriptUrl = 'https://script.google.com/macros/s/AKfycbzIGXYxoXKa8iR6BslGv88oHAMRl-tiWTYPQvMzZz1_JlcQ7DOZXo7rg8N4dIe7W32tMg/exec';
                 
                 console.log('Sending data to Google Sheets:', JSON.stringify(googleScriptData));
                 
