@@ -117,7 +117,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     useUkrainianHeaders: true // Flag to ensure Ukrainian headers are used
                 };
                 
-                const googleScriptUrl = 'https://script.google.com/macros/s/AKfycbyqCH3aiX2mZIvQs7Sh8iP4uylOEegZi-yJorb6QUSTUPVTTY0aJdZBwgi-uyNOb8PRvA/exec';
+                const googleScriptUrl = 'https://script.google.com/macros/s/AKfycby-PgKz5QJddPAUt-ipRqLaWwPlvLukuxmYpAwwXl8iZBOFKckBfQE4wRb2MdvFW_KaqA/exec';
                 
                 // Use fetch API with POST request
                 const response = await fetch(googleScriptUrl, {
