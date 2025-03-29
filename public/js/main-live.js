@@ -121,32 +121,26 @@ document.addEventListener('DOMContentLoaded', async () => {
                 
                 console.log('Sending data to Google Sheets:', JSON.stringify(googleScriptData));
                 
-                // Use URLSearchParams instead of JSON for more reliable data transfer
-                const formDataForGoogle = new URLSearchParams();
+                try {
+                    // Send data directly as JSON
+                    const response = await fetch(googleScriptUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(googleScriptData),
+                        redirect: 'follow'
+                    });
+                    
+                    // Since we can't read the response with no-cors, we'll just assume success
+                    showMessage(`Дані успішно відправлено!`, 'success');
+                    registrationForm.reset();
+                    phoneInput.value = '+380';
+                    return;
+                } catch (googleError) {
+                    console.error('Error sending to Google Sheets:', googleError);
+                }
                 
-                // Add all data from googleScriptData to formDataForGoogle
-                Object.keys(googleScriptData).forEach(key => {
-                    formDataForGoogle.append(key, googleScriptData[key]);
-                });
-                
-                // Додаємо явний порядок стовпців
-                formDataForGoogle.append('columnOrder', 'number,registrationDate,fullName,dob,address,phone,email,status');
-                
-                // Use fetch API with POST request
-                const response = await fetch(googleScriptUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: formDataForGoogle.toString(),
-                    redirect: 'follow'
-                });
-                
-                // Since we can't read the response with no-cors, we'll just assume success
-                showMessage(`Дані успішно відправлено!`, 'success');
-                registrationForm.reset();
-                phoneInput.value = '+380';
-                return;
             } catch (googleError) {
                 console.error('Error sending to Google Sheets:', googleError);
             }
