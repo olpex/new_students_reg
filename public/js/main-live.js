@@ -114,7 +114,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                     phone: formData.phone,
                     email: formData.email,
                     status: formData.status, // Move status field to the end
-                    useUkrainianHeaders: true // Flag to ensure Ukrainian headers are used
+                    useUkrainianHeaders: true, // Flag to ensure Ukrainian headers are used
+                    cellFormatting: {
+                        horizontalAlignment: 'center', // Center text horizontally
+                        verticalAlignment: 'middle'    // Center text vertically
+                    }
                 };
                 
                 const googleScriptUrl = 'https://script.google.com/macros/s/AKfycbycEGCogYhV4SbT-t_m9A7MlnElLr1CSTJEWmmPFE-ZK70PZYoNadRzGmxxXSLnynO3sw/exec';
