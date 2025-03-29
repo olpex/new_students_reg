@@ -100,7 +100,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const googleScriptData = {
                     sheetId: '1T-z_wf1Vdo_oYyII5ywUR1mM0P69nvRIz8Ry98TupeE',
                     sheetName: formData.group, // Use the group name as the sheet name
-                    status: formData.status, // Add status field
+                    timestamp: new Date().toLocaleString('uk-UA'), // Add timestamp
                     fullName: `${formData.lastName} ${formData.firstName} ${formData.patronymic}`, // Combined name field
                     dob: formData.birthDate,
                     address: formattedAddress, // Use the formatted address
@@ -113,6 +113,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     idCode: formData.idCode,
                     phone: formData.phone,
                     email: formData.email,
+                    status: formData.status, // Move status field to the end
                     useUkrainianHeaders: true // Flag to ensure Ukrainian headers are used
                 };
                 
