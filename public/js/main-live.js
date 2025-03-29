@@ -123,9 +123,29 @@ document.addEventListener('DOMContentLoaded', async () => {
                 
                 // Use URLSearchParams instead of JSON for more reliable data transfer
                 const formDataForGoogle = new URLSearchParams();
-                Object.keys(googleScriptData).forEach(key => {
-                    formDataForGoogle.append(key, googleScriptData[key]);
-                });
+                
+                // Add data in the exact order we want columns to appear
+                formDataForGoogle.append('sheetId', googleScriptData.sheetId);
+                formDataForGoogle.append('sheetName', googleScriptData.sheetName);
+                
+                // Specify the exact column order
+                formDataForGoogle.append('column1', 'number'); // №
+                formDataForGoogle.append('column2', 'registrationDate'); // Дата реєстрації
+                formDataForGoogle.append('column3', 'fullName'); // ПІБ
+                formDataForGoogle.append('column4', 'dob'); // Дата народження
+                formDataForGoogle.append('column5', 'address'); // Місце реєстрації
+                formDataForGoogle.append('column6', 'phone'); // Телефон
+                formDataForGoogle.append('column7', 'email'); // Email
+                formDataForGoogle.append('column8', 'status'); // Статус
+                
+                // Now add the actual data
+                formDataForGoogle.append('timestamp', googleScriptData.timestamp);
+                formDataForGoogle.append('fullName', googleScriptData.fullName);
+                formDataForGoogle.append('dob', googleScriptData.dob);
+                formDataForGoogle.append('address', googleScriptData.address);
+                formDataForGoogle.append('phone', googleScriptData.phone);
+                formDataForGoogle.append('email', googleScriptData.email);
+                formDataForGoogle.append('status', googleScriptData.status);
                 
                 // Use fetch API with POST request
                 const response = await fetch(googleScriptUrl, {
