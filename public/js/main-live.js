@@ -119,14 +119,22 @@ document.addEventListener('DOMContentLoaded', async () => {
                 
                 const googleScriptUrl = 'https://script.google.com/macros/s/AKfycby-PgKz5QJddPAUt-ipRqLaWwPlvLukuxmYpAwwXl8iZBOFKckBfQE4wRb2MdvFW_KaqA/exec';
                 
+                console.log('Sending data to Google Sheets:', JSON.stringify(googleScriptData));
+                
+                // Use URLSearchParams instead of JSON for more reliable data transfer
+                const formDataForGoogle = new URLSearchParams();
+                Object.keys(googleScriptData).forEach(key => {
+                    formDataForGoogle.append(key, googleScriptData[key]);
+                });
+                
                 // Use fetch API with POST request
                 const response = await fetch(googleScriptUrl, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
+                        'Content-Type': 'application/x-www-form-urlencoded',
                     },
-                    body: JSON.stringify(googleScriptData),
-                    mode: 'no-cors' // This prevents CORS issues
+                    body: formDataForGoogle.toString(),
+                    redirect: 'follow'
                 });
                 
                 // Since we can't read the response with no-cors, we'll just assume success
