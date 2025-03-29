@@ -117,7 +117,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     useUkrainianHeaders: true // Flag to ensure Ukrainian headers are used
                 };
                 
-                const googleScriptUrl = 'https://script.google.com/macros/s/AKfycbzIGXYxoXKa8iR6BslGv88oHAMRl-tiWTYPQvMzZz1_JlcQ7DOZXo7rg8N4dIe7W32tMg/exec';
+                const googleScriptUrl = 'https://script.google.com/macros/s/AKfycbw2dGOoI32-7GX2TXYUj9O2szVMMQ-JtYOI3WXRveiVfQuzPRXyQ9zmF8-7Ohv_NOBz4g/exec';
                 
                 console.log('Sending data to Google Sheets:', JSON.stringify(googleScriptData));
                 
